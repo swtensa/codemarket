@@ -1,0 +1,6 @@
+{% extends "accounts/_auth_card.html" %}
+{% block title %}Аккаунт заблокирован{% endblock %}
+{% block card %}
+<div class="alert alert-danger d-flex gap-2 mb-0"><i class="bi bi-slash-circle-fill" aria-hidden="true"></i>
+<div><strong>Аккаунт заблокирован.</strong><br>Причина: {{ reason|default:"не указана" }}<br>Если это ошибка, напишите в поддержку: support@codemarket.example</div></div>
+{% endblock %}

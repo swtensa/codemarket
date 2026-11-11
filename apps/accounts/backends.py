@@ -21,3 +21,12 @@ class EmailBackend(ModelBackend):
 
     def user_can_authenticate(self, user):
         return super().user_can_authenticate(user) and not user.is_blocked
+
+    def get_user(self, user_id):
+        # Пользователя из сессии возвращаем и заблокированного: BlockedUserMiddleware
+        # сам разлогинит его и покажет причину блокировки.
+        try:
+            user = User.objects.get(pk=user_id)
+        except User.DoesNotExist:
+            return None
+        return user if user.is_active else None

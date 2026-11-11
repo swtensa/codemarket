@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Профиль{% endblock %}
+{% block content %}
+{% include "me/_tabs.html" %}
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="card"><div class="card-body p-4">
+      <h2 class="h5 mb-3">Профиль</h2>
+      <form method="post" novalidate>{% csrf_token %}
+        {% include "includes/form_errors.html" %}
+        <div class="mb-3"><label class="form-label fw-semibold" for="email">Email</label><input id="email" class="form-control" value="{{ user.email }}" disabled></div>
+        {% include "includes/field.html" with field=form.username %}
+        {% include "includes/field.html" with field=form.github_login %}
+        <button class="btn btn-primary" type="submit">Сохранить</button>
+      </form>
+    </div></div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card"><div class="card-body p-4">
+      <h2 class="h5 mb-3">Безопасность</h2>
+      <p class="text-muted">Зарегистрирован {{ user.created_at|date:"d.m.Y H:i" }}</p>
+      <a class="btn btn-outline-primary" href="{% url 'accounts:password_change' %}"><i class="bi bi-key me-1"></i>Сменить пароль</a>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

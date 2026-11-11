@@ -8,34 +8,21 @@ from apps.core.views import soon
 admin.site.site_header = "CodeMarket — администрирование"
 admin.site.site_title = "CodeMarket"
 
-stub = [
-    path("me/purchases/", soon, name="purchases"),
-    path("me/orders/", soon, name="orders"),
-    path("me/profile/", soon, name="profile"),
-]
+
+def _stub(namespace, *names):
+    """Заглушки разделов, которые появятся на следующих этапах."""
+    return include(([path(f"{namespace}/{n}/", soon, name=n) for n in names], namespace))
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("accounts/", include("apps.accounts.urls")),
+    path("me/", include("apps.accounts.me_urls")),
     path("legal/", include("apps.core.legal_urls")),
-    path("accounts/login/", soon, name="login"),
-    path("", include((stub, "me"))),
-    path(
-        "",
-        include(
-            (
-                [
-                    path("accounts/login/", soon, name="login"),
-                    path("accounts/logout/", soon, name="logout"),
-                    path("accounts/register/", soon, name="register"),
-                ],
-                "accounts",
-            )
-        ),
-    ),
-    path("", include(([path("sell/", soon, name="dashboard")], "sell"))),
-    path("", include(([path("notifications/", soon, name="list")], "notifications"))),
-    path("", include(([path("balance/", soon, name="index")], "balance"))),
-    path("", include(([path("moderation/", soon, name="queue")], "moderation"))),
+    path("_/", _stub("sell", "dashboard")),
+    path("_/", _stub("notifications", "list")),
+    path("_/", _stub("balance", "index")),
+    path("_/", _stub("moderation", "queue")),
     path("", include("apps.catalog.urls")),
 ]
 
