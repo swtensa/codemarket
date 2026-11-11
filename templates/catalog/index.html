@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Каталог{% endblock %}
+{% block content %}
+<section class="cm-hero mb-4">
+  <h1>Готовый код с доработкой от автора</h1>
+  <p class="lead mb-3">Каждый продукт проверен на заимствования, а оплата за доработку удерживается до приёмки работы.</p>
+  <a class="btn btn-primary me-2" href="#catalog">Смотреть каталог</a>
+  <a class="btn btn-accent" href="{% url 'sell:dashboard' %}">Начать продавать</a>
+</section>
+<div id="catalog" class="cm-empty"><i class="bi bi-box-seam"></i>Каталог появится на этапе 3.</div>
+{% endblock %}

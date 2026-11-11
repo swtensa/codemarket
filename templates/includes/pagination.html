@@ -1,0 +1,12 @@
+{% load cm %}
+{% if page_obj.has_other_pages %}
+<nav aria-label="Страницы" class="mt-4"><ul class="pagination justify-content-center flex-wrap">
+  {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?{% query_replace page=page_obj.previous_page_number %}" aria-label="Назад">&laquo;</a></li>{% endif %}
+  {% for n in page_obj.paginator.page_range %}
+    {% if n == page_obj.number %}<li class="page-item active"><span class="page-link">{{ n }}</span></li>
+    {% elif n == 1 or n == page_obj.paginator.num_pages %}<li class="page-item"><a class="page-link" href="?{% query_replace page=n %}">{{ n }}</a></li>
+    {% elif n > page_obj.number|add:"-3" and n < page_obj.number|add:"3" %}<li class="page-item"><a class="page-link" href="?{% query_replace page=n %}">{{ n }}</a></li>{% endif %}
+  {% endfor %}
+  {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?{% query_replace page=page_obj.next_page_number %}" aria-label="Вперёд">&raquo;</a></li>{% endif %}
+</ul></nav>
+{% endif %}
