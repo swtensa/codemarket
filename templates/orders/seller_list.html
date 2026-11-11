@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load cm %}
+{% block title %}Заказы и вопросы{% endblock %}
+{% block content %}
+{% include "sell/_nav.html" %}
+<ul class="nav nav-pills mb-3">
+  <li class="nav-item"><a class="nav-link{% if not request.GET.kind %} active{% endif %}" href="?">Все</a></li>
+  <li class="nav-item"><a class="nav-link{% if request.GET.kind == 'orders' %} active{% endif %}" href="?kind=orders">Заказы</a></li>
+  <li class="nav-item"><a class="nav-link{% if request.GET.kind == 'question' %} active{% endif %}" href="?kind=question">Вопросы</a></li>
+</ul>
+{% if page_obj.object_list %}
+<div class="card"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead><tr><th>Заказ</th><th>Покупатель</th><th>Тип</th><th>Статус</th><th class="text-end">Цена</th><th>Крайний срок</th></tr></thead>
+    <tbody>
+    {% for o in page_obj %}
+      <tr>
+        <td><a class="fw-semibold" href="{% url 'orders:detail' o.pk %}">№{{ o.pk }} · {{ o.product.title }}</a><div class="small text-muted text-truncate" style="max-width:320px">{{ o.task }}</div></td>
+        <td class="small">{{ o.buyer.username }}</td>
+        <td class="small">{{ o.get_kind_display }}</td>
+        <td>{% status_badge o.status o.get_status_display %}</td>
+        <td class="text-end text-nowrap">{% if o.price %}{{ o.price|money }}{% else %}—{% endif %}</td>
+        <td class="small text-nowrap">{{ o.deadline|dt }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% include "includes/pagination.html" %}
+{% else %}
+  <div class="card cm-empty"><i class="bi bi-inbox"></i><p class="fs-5 mb-0">Заказов и вопросов пока нет</p></div>
+{% endif %}
+{% endblock %}

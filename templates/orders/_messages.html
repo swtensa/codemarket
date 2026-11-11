@@ -1,0 +1,16 @@
+{% load cm %}{% for m in chat %}
+{% if not m.author_id %}
+  <div class="text-center small text-muted my-1" data-id="{{ m.pk }}"><i class="bi bi-info-circle me-1"></i>{{ m.text }} · {{ m.created_at|dt }}</div>
+{% else %}
+  <div class="cm-msg{% if m.author_id == user.id %} mine{% endif %}{% if m.is_result %} result{% endif %}" data-id="{{ m.pk }}">
+    {% if m.is_result %}<div class="small fw-bold" style="color:var(--c-sage-text)"><i class="bi bi-patch-check-fill me-1"></i>Результат</div>{% endif %}
+    {% if m.text %}<div>{{ m.text|linebreaksbr }}</div>{% endif %}
+    {% if m.attachment %}<a class="cm-attach" href="{% url 'orders:attachment' m.pk %}"><i class="bi bi-file-earmark-arrow-down fs-5"></i><span class="text-break">{{ m.attachment_name }}</span></a>{% endif %}
+    <div class="meta mt-1">{% if m.author_id == order.product.seller_id %}продавец{% else %}покупатель{% endif %} {{ m.author.username }} · {{ m.created_at|dt }}
+      {% if m.author_id == user.id and not m.is_result and order.product.seller_id == user.id and order.status in "in_work revision" %}
+        <form method="post" class="d-inline">{% csrf_token %}<input type="hidden" name="action" value="mark_result"><input type="hidden" name="message_id" value="{{ m.pk }}"><button class="btn btn-link btn-sm p-0 ms-1 align-baseline">отметить как результат</button></form>
+      {% endif %}
+    </div>
+  </div>
+{% endif %}
+{% endfor %}

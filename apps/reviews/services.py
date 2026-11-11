@@ -14,3 +14,8 @@ def seller_rating(seller):
 def review_for_purchase(purchase):
     """Отзыв по покупке или None."""
     return None
+
+
+def review_for_order(order):
+    """Отзыв по заказу или None."""
+    return None

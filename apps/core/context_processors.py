@@ -14,6 +14,7 @@ def site(request):
         "SITE_NAME": "CodeMarket",
         "HOLD_DAYS": settings.HOLD_DAYS,
         "LICENSE_VERSION": settings.LICENSE_VERSION,
+        "MAX_REVISIONS": settings.MAX_REVISIONS,
         "PAYMENT_PROVIDER": settings.PAYMENT_PROVIDER,
         "GITHUB_MODE": settings.GITHUB_MODE,
     }

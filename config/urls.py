@@ -24,6 +24,7 @@ urlpatterns = [
     path("_/", _stub("balance", "index")),
     path("moderation/", include("apps.moderation.urls")),
     path("payments/", include("apps.payments.urls")),
+    path("orders/", include("apps.orders.urls")),
     path("", include("apps.purchases.urls")),
     path("", include("apps.catalog.urls")),
 ]
