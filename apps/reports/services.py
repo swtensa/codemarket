@@ -76,7 +76,7 @@ def seller_tiles(user):
     revenue = BalanceOperation.objects.filter(
         user=user, kind__in=["income", "refund_reversal"], created_at__gte=start
     ).exclude(status="cancelled").aggregate(s=Sum("amount"))["s"] or Decimal("0")
-    sales = Purchase.objects.filter(product__seller=user, status__in=SOLD + ["refunded"]).count()
+    sales = Purchase.objects.filter(product__seller=user, status__in=SOLD).count()
     views = ProductView.objects.filter(product__seller=user).count()
     rating, _ = seller_rating(user)
     return {"revenue_month": revenue, "sales": sales, "views": views, "rating": rating}
@@ -168,14 +168,17 @@ def admin_report(d_from, d_to):
         in_sec = Q(product__category__parent=section)
         sec_purchases = purchases.filter(in_sec)
         sec_orders = orders.filter(in_sec)
+        # оборот — как в разбивке по месяцам: поступившие платежи за вычетом возвратов
+        sec_pay = payments.filter(
+            Q(purchase__product__category__parent=section) | Q(order__product__category__parent=section)
+        ).aggregate(s=Sum("amount"), r=Sum("refund_amount"))
         by_section.append(
             {
                 "label": section.name,
                 "products": published.filter(category__parent=section).count(),
                 "purchases": sec_purchases.count(),
                 "orders": sec_orders.count(),
-                "turnover": (sec_purchases.aggregate(s=Sum("price"))["s"] or 0)
-                + (sec_orders.aggregate(s=Sum("price"))["s"] or 0),
+                "turnover": (sec_pay["s"] or Decimal("0")) - (sec_pay["r"] or Decimal("0")),
                 "income": commission.filter(
                     Q(purchase__product__category__parent=section) | Q(order__product__category__parent=section)
                 ).aggregate(s=Sum("amount"))["s"]

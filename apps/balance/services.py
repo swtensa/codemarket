@@ -167,7 +167,7 @@ def release_funds(now=None):
             status=Purchase.Status.DISPUTE, id__in={op.purchase_id for op in ops if op.purchase_id}
         ).values_list("id", flat=True)
     )
-    released, purchases = 0, set()
+    released, purchases, net = 0, set(), {}
     for op in ops:
         if op.purchase_id in blocked:
             continue
@@ -176,9 +176,18 @@ def release_funds(now=None):
         op.save(update_fields=["status", "processed_at"])
         if op.kind == K.INCOME:
             released += 1
-            notify(op.user, f"{money(op.amount)} ₽ за покупку №{op.purchase_id} доступны к выводу.", "/balance/")
+        if op.kind in (K.INCOME, K.REFUND_REVERSAL):
+            key = (op.user_id, op.purchase_id)
+            net[key] = net.get(key, Decimal("0")) + op.amount
         if op.purchase_id:
             purchases.add(op.purchase_id)
+    # уведомление — чистая сумма по покупке (после возврата может быть 0, тогда не уведомляем)
+    from apps.accounts.models import User
+
+    users = User.objects.in_bulk({uid for uid, _ in net})
+    for (uid, purchase_id), amount in net.items():
+        if amount > 0:
+            notify(users[uid], f"{money(amount)} ₽ за покупку №{purchase_id} доступны к выводу.", "/balance/")
     for p in Purchase.objects.filter(id__in=purchases, status=Purchase.Status.PAID):
         complete_purchase(p)
     return released

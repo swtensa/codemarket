@@ -119,3 +119,57 @@ def description(title, techs):
         f"— используются технологии: {', '.join(techs)};\n"
         "— бесплатные обновления всех будущих версий."
     )
+
+
+# ---------------------------------------------------------------- настоящие шаблоны Start Bootstrap
+#
+# Четыре бесплатных шаблона Start Bootstrap (https://startbootstrap.com), автор — Start Bootstrap LLC,
+# лицензия MIT. Файлы лежат в fixtures/demo/startbootstrap/<папка> без изменений (содержимое dist/,
+# LICENSE и README.md оригинального репозитория), скриншоты страниц — в fixtures/demo/startbootstrap_screens.
+# Все четыре шаблона публикует один продавец (веб-студия), поэтому друг с другом они не сравниваются.
+
+SB_AUTHOR = "Start Bootstrap LLC"
+SB_LICENSE = "MIT"
+
+# slug, название, подкатегория, продавец, цена, технологии, платформы, папка шаблона, страница оригинала
+TEMPLATES = [
+    ("sb-landing-page", "Шаблон «Landing Page» (Start Bootstrap)", "landing", 0, 490,
+     ["html-css", "bootstrap", "javascript"], ["any-hosting", "tilda"], "landing-page",
+     "https://startbootstrap.com/theme/landing-page"),
+    ("sb-freelancer", "Шаблон портфолио «Freelancer» (Start Bootstrap)", "portfolio", 0, 590,
+     ["html-css", "bootstrap", "javascript"], ["any-hosting"], "freelancer",
+     "https://startbootstrap.com/theme/freelancer"),
+    ("sb-small-business", "Шаблон сайта компании «Small Business» (Start Bootstrap)", "company", 0, 390,
+     ["html-css", "bootstrap"], ["any-hosting", "wordpress"], "small-business",
+     "https://startbootstrap.com/template/small-business"),
+    ("sb-shop-homepage", "Шаблон витрины «Shop Homepage» (Start Bootstrap)", "shop", 0, 490,
+     ["html-css", "bootstrap"], ["any-hosting"], "shop-homepage",
+     "https://startbootstrap.com/template/shop-homepage"),
+]  # fmt: skip
+
+# Копия шаблона Landing Page с переименованными классами блоков — для показа автоотказа (S ≈ 0,80):
+# slug, название, подкатегория, продавец, цена, slug оригинала, {старый класс: новый}
+TEMPLATE_COPY = (
+    "startup-landing", "Лендинг для стартапа «Старт»", "landing", 2, 790, "sb-landing-page",
+    {"masthead": "hero", "showcase": "gallery-block", "testimonials": "reviews", "call-to-action": "cta-banner",
+     "features-icons": "benefits", "form-subscribe": "signup-form"},
+)  # fmt: skip
+
+
+def template_description(title, url):
+    return (
+        f"{title} — бесплатный шаблон на Bootstrap 5 в исходном виде.\n\n"
+        f"Автор шаблона — {SB_AUTHOR}, лицензия {SB_LICENSE}. Оригинал: {url}. "
+        "Файл LICENSE с уведомлением об авторских правах сохранён в репозитории, код не изменён.\n\n"
+        "Что вы получаете за плату:\n"
+        "— доступ к репозиторию с обновлениями;\n"
+        "— ответы на вопросы по установке;\n"
+        "— возможность заказать у продавца адаптацию под свой бизнес (тексты, цвета, формы)."
+    )
+
+
+def copy_description(title):
+    return (
+        f"«{title}» — современный адаптивный лендинг на Bootstrap 5: первый экран с формой подписки, "
+        "преимущества, блоки с фотографиями, отзывы клиентов. Подходит для запуска продукта за один вечер."
+    )

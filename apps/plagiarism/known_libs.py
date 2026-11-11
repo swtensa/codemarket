@@ -8,6 +8,8 @@
 """
 
 import fnmatch
+from functools import lru_cache
+from pathlib import Path
 
 # Шаблоны имён файлов (без учёта регистра), сравниваются с именем файла без папок.
 KNOWN_LIB_PATTERNS = [
@@ -62,3 +64,23 @@ def is_known_lib_name(filename):
 
 def is_known_lib_hash(sha256_hex):
     return sha256_hex in KNOWN_SHA256
+
+
+# Эталонные файлы библиотек (папка libs/). Их код часто встраивают в свои файлы — например,
+# шаблоны Start Bootstrap собирают весь Bootstrap в собственный css/styles.css. Отпечатки,
+# совпадающие с любой k-граммой эталона, в проверке не участвуют («общий bootstrap не даёт
+# совпадения», раздел 8.5 ТЗ). Чтобы добавить библиотеку, положите её несжатый файл в libs/.
+LIB_DIR = Path(__file__).resolve().parent / "libs"
+
+
+@lru_cache(maxsize=4)
+def library_kgrams(k):
+    """Множество хешей всех k-грамм эталонных библиотек."""
+    from .tokenize import tokenize
+    from .winnow import kgram_hashes
+
+    hashes = set()
+    for path in sorted(LIB_DIR.glob("*")):
+        if path.is_file():
+            hashes.update(kgram_hashes(tokenize(path.name, path.read_text(encoding="utf-8")), k))
+    return frozenset(hashes)

@@ -120,6 +120,7 @@ def start_purchase(user, product, *, github_login="", accept_license=False):
     from apps.payments.services import create_payment, pending_payment_for
 
     if github_login and github_login.strip().lstrip("@") != user.github_login:
+        check_can_buy(user, product)
         set_github_login(user, github_login)
     purchase = Purchase.objects.filter(buyer=user, product=product, status=P.PENDING).first()
     if purchase is not None:
@@ -183,20 +184,24 @@ def on_payment_canceled(purchase):
 
 
 @transaction.atomic
-def create_paid_purchase_for_order(order):
-    """«Купить с доработкой»: оплата заказа включает продукт — создать оплаченную покупку и выдать доступ."""
+def create_paid_purchase_for_order(order, price=None):
+    """«Купить с доработкой»: оплата заказа включает продукт — создать оплаченную покупку и выдать доступ.
+
+    price — оплаченная доля продукта (цена на момент создания платежа); по умолчанию текущая цена.
+    """
     from apps.versions.services import current_version
 
     existing = active_purchase(order.buyer, order.product)
     if existing:
         return existing
     product = order.product
+    price = product.price if price is None else price
     purchase = Purchase.objects.create(
         buyer=order.buyer,
         product=product,
         version=current_version(product),
-        price=product.price,
-        commission=balance_services.commission_for(product.price),
+        price=price,
+        commission=balance_services.commission_for(price),
         status=P.PAID,
         paid_at=timezone.now(),
         license_version=settings.LICENSE_VERSION,
@@ -294,6 +299,24 @@ def revoke_access(purchase):
     purchase.access_revoked_at = timezone.now()
     purchase.save(update_fields=["access_status", "access_revoked_at"])
     return purchase
+
+
+def on_github_login_changed(user, old_login):
+    """Покупатель сменил логин GitHub: отозвать приглашение старого логина, новый пригласит sync_access."""
+    if not old_login or old_login == user.github_login:
+        return 0
+    moved = 0
+    for purchase in Purchase.objects.filter(
+        buyer=user, status__in=ACTIVE, access_status__in=[A.INVITED, A.GRANTED]
+    ).select_related("product"):
+        try:
+            get_client().remove_collaborator(purchase.product.mirror_repo_full_name, old_login)
+        except GitHubError as e:
+            log.error("Не удалось отозвать доступ %s к покупке %s: %s", old_login, purchase.pk, e)
+        purchase.access_status = A.NONE
+        purchase.save(update_fields=["access_status"])
+        moved += 1
+    return moved
 
 
 def sync_access(limit=50):

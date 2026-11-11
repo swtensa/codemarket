@@ -22,18 +22,39 @@ def register_user(*, email, username, password):
     )
 
 
+def _stored_github_login(user):
+    # ModelForm уже записала новое значение в объект, поэтому старое берём из базы
+    return User.objects.filter(pk=user.pk).values_list("github_login", flat=True).first() or ""
+
+
 def update_profile(user, *, username, github_login):
-    """Изменить имя и логин GitHub."""
+    """Изменить имя и логин GitHub. При смене логина доступ к купленным копиям переходит на новый."""
+    from apps.purchases.services import on_github_login_changed
+
+    old_login = _stored_github_login(user)
     user.username = username
     user.github_login = github_login
     user.save(update_fields=["username", "github_login"])
+    on_github_login_changed(user, old_login)
     return user
 
 
 def set_github_login(user, github_login):
-    """Сохранить логин GitHub (со страницы покупки)."""
-    user.github_login = github_login.strip().lstrip("@")
+    """Сохранить логин GitHub (со страницы покупки). Неверный формат — ServiceError."""
+    from django.core.exceptions import ValidationError
+
+    from apps.purchases.services import on_github_login_changed
+
+    from .validators import clean_github_login
+
+    try:
+        login = clean_github_login(github_login)
+    except ValidationError as e:
+        raise ServiceError(e.messages[0])
+    old_login = _stored_github_login(user)
+    user.github_login = login
     user.save(update_fields=["github_login"])
+    on_github_login_changed(user, old_login)
     return user
 
 

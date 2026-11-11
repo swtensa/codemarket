@@ -1,6 +1,7 @@
 """Сравнение наборов отпечатков (чистые функции без Django)."""
 
 from .files import collect_source_files
+from .known_libs import library_kgrams
 from .tokenize import tokenize
 from .winnow import fingerprint
 
@@ -14,8 +15,18 @@ def similarity(fa, fb):
 
 
 def fingerprint_files(files, k, w):
-    """Отпечатки набора файлов: {путь: [(хеш, позиция), ...]}. k-граммы не пересекают границы файлов."""
-    return {path: fingerprint(tokenize(path, text), k, w) for path, text in files}
+    """Отпечатки набора файлов: {путь: [(хеш, позиция), ...]}. k-граммы не пересекают границы файлов.
+
+    Отпечатки кода известных библиотек (эталоны в libs/) отбрасываются; файл, в котором
+    не осталось своих отпечатков, в результат не попадает.
+    """
+    lib = library_kgrams(k)
+    out = {}
+    for path, text in files:
+        fps = [(h, pos) for h, pos in fingerprint(tokenize(path, text), k, w) if h not in lib]
+        if fps:
+            out[path] = fps
+    return out
 
 
 def fingerprint_dir(root, k, w):

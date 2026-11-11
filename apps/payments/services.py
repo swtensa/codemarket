@@ -10,6 +10,7 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.db import transaction
+from django.db.models import F
 
 from apps.core.exceptions import ServiceError
 
@@ -69,6 +70,15 @@ def handle_notification(external_id):
         if payment is None:
             hook_log.warning("Платёж %s не найден", external_id)
             return None
+        if payment.status == Payment.Status.CANCELED and status == "succeeded":
+            # покупатель оплатил после отмены (таймаут, отмена заказа): деньги пришли, товар не выдаём
+            payment.status = Payment.Status.SUCCEEDED
+            payment.save(update_fields=["status"])
+            _alert_admins(
+                f"Платёж №{payment.pk} ({external_id}) на {payment.amount} ₽ оплачен после отмены покупки или заказа: "
+                "верните деньги покупателю в кабинете ЮKassa."
+            )
+            return payment
         if payment.status != Payment.Status.PENDING:
             hook_log.info("Платёж %s уже обработан (%s)", external_id, payment.status)
             return payment
@@ -85,11 +95,19 @@ def handle_notification(external_id):
     return payment
 
 
+def _alert_admins(text):
+    from apps.accounts.models import User
+    from apps.notifications.services import notify_many
+
+    hook_log.error(text)
+    notify_many(User.objects.filter(is_staff=True), text, "/moderation/")
+
+
 def _dispatch_success(payment):
     if payment.order_id:
         from apps.orders.services import on_payment_succeeded
 
-        on_payment_succeeded(payment.order)
+        on_payment_succeeded(payment.order, payment)
     else:
         from apps.purchases.services import on_payment_succeeded
 
@@ -123,8 +141,8 @@ def mark_refund(*, amount, purchase=None, order=None, admin=None):
     qs = Payment.objects.filter(status__in=[Payment.Status.SUCCEEDED, Payment.Status.PARTIALLY_REFUNDED])
     payment = (qs.filter(order=order) if order else qs.filter(purchase=purchase, order__isnull=True)).first()
     if payment is None and purchase is not None:
-        # покупка оплачена в составе заказа «с доработкой»
-        payment = qs.filter(purchase=purchase).first()
+        # покупка оплачена в составе заказа «Купить с доработкой»: платёж заказа больше цены доработки
+        payment = qs.filter(order__purchase=purchase, amount__gt=F("order__price")).first()
     if payment is None:
         return None
     amount = Decimal(amount)

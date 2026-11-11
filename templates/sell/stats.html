@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load cm %}
+{% load static cm %}
 {% block title %}Статистика{% endblock %}
 {% block content %}
 {% include "sell/_nav.html" %}
@@ -34,7 +34,7 @@
 </div></div>
 {% endblock %}
 {% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{% static 'vendor/chartjs/chart.umd.min.js' %}"></script>
 <script>
 (function () {
   var el = document.getElementById('salesChart');

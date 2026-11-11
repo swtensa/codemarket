@@ -36,7 +36,7 @@
     </ul>
     <div class="tab-content card border-top-0 rounded-top-0"><div class="card-body p-4">
       <div class="tab-pane fade show active" id="tab-desc" role="tabpanel">
-        <div class="cm-description">{{ product.description|linebreaks }}</div>
+        <div class="cm-description">{{ product.description|urlize|linebreaks }}</div>
       </div>
       <div class="tab-pane fade" id="tab-versions" role="tabpanel">
         {% if versions %}

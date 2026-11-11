@@ -1,4 +1,4 @@
-"""Демо-данные для защиты: пользователи, справочники, 16 продуктов, покупки, заказы во всех статусах,
+"""Демо-данные для защиты: пользователи, справочники, 16 карточек продуктов, 4 шаблона Start Bootstrap и копию шаблона, покупки, заказы во всех статусах,
 отзывы, вопросы, спор, выплаты. Всё создаётся через сервисы (как при работе пользователей).
 
     python manage.py seed_demo          # заполнить пустую базу
@@ -7,6 +7,7 @@
 
 import io
 import random
+import re
 import shutil
 import zlib
 from datetime import timedelta
@@ -26,6 +27,8 @@ from apps.core import demo_data as D
 PALETTE = [("#293941", "#CB5152"), ("#3A4E57", "#B2BB8A"), ("#657069", "#FEF6C3"), ("#293941", "#E3B23C"),
            ("#B5444A", "#FEF6C3"), ("#3A4E57", "#E6EAD5")]  # fmt: skip
 SECTION_ICON = {"sites": "</>", "modules": "{ }", "bots": "@bot", "scripts": ">_"}
+SB_ROOT = Path(settings.BASE_DIR) / "fixtures" / "demo" / "startbootstrap"
+SB_SCREENS = Path(settings.BASE_DIR) / "fixtures" / "demo" / "startbootstrap_screens"
 
 
 class Command(BaseCommand):
@@ -45,6 +48,7 @@ class Command(BaseCommand):
         ensure_reference_data()
         self.create_users()
         self.create_products()
+        self.create_templates()
         self.create_copies_and_queue()
         self.create_purchases()
         self.create_orders()
@@ -150,18 +154,51 @@ class Command(BaseCommand):
         img.save(buf, "PNG")
         return buf.getvalue()
 
-    def make_product(self, slug, title, sub_slug, seller, price, techs, platforms, files, demo_url, idx):
+    def copy_repo(self, slug, source, renames=None):
+        """Скопировать папку шаблона в fake-репозиторий; renames — переименовать классы (для копии)."""
+        repo = Path(settings.GITHUB_FAKE_ROOT) / slug
+        shutil.rmtree(repo, ignore_errors=True)
+        shutil.copytree(source, repo)
+        if renames:
+            pattern = re.compile(r"(?<![\w-])(" + "|".join(sorted(renames, key=len, reverse=True)) + r")(?![\w-])")
+            for path in repo.rglob("*"):
+                if path.suffix in (".html", ".css", ".js"):
+                    text = path.read_text(encoding="utf-8")
+                    path.write_text(pattern.sub(lambda m: renames[m.group(1)], text), encoding="utf-8", newline="\n")
+            # «автор» копии убрал упоминание оригинала
+            (repo / "LICENSE").unlink(missing_ok=True)
+            (repo / "README.md").write_text(f"# {slug}\n\nЛендинг на Bootstrap 5.\n", encoding="utf-8")
+        return repo
+
+    def make_product(
+        self,
+        slug,
+        title,
+        sub_slug,
+        seller,
+        price,
+        techs,
+        platforms,
+        files,
+        demo_url,
+        idx,
+        description=None,
+        short=None,
+        screens=None,
+    ):
+        """files — словарь {путь: код} либо готовая папка репозитория (Path); screens — файлы скриншотов."""
         from apps.catalog import services as catalog
 
-        self.write_repo(slug, files)
+        if isinstance(files, dict):
+            self.write_repo(slug, files)
         category = Category.objects.get(slug=sub_slug)
         tech_objs = list(Technology.objects.filter(slug__in=techs))
         product = catalog.create_product(
             seller,
             data={
                 "title": title,
-                "short_description": f"{title}: готовый код, быстрый запуск и доработка от автора.",
-                "description": D.description(title, [t.name for t in tech_objs]),
+                "short_description": short or f"{title}: готовый код, быстрый запуск и доработка от автора.",
+                "description": description or D.description(title, [t.name for t in tech_objs]),
                 "price": price,
                 "category": category,
                 "demo_url": demo_url,
@@ -173,11 +210,17 @@ class Command(BaseCommand):
         )
         Product.objects.filter(pk=product.pk).update(slug=slug)
         product.refresh_from_db()
-        Screenshot.objects.create(
-            product=product,
-            position=0,
-            image=ContentFile(self.cover(title, category.parent.slug, idx), name="cover.png"),
-        )
+        if screens:
+            for pos, path in enumerate(screens):
+                Screenshot.objects.create(
+                    product=product, position=pos, image=ContentFile(path.read_bytes(), name=path.name)
+                )
+        else:
+            Screenshot.objects.create(
+                product=product,
+                position=0,
+                image=ContentFile(self.cover(title, category.parent.slug, idx), name="cover.png"),
+            )
         return product
 
     def check_and_approve(self, product, approve=True):
@@ -204,6 +247,55 @@ class Command(BaseCommand):
             v.__class__.objects.filter(pk=v.pk).update(approved_at=published, created_at=published - timedelta(days=1))
             self.products[slug] = p
             self.log(f"{title}: версия {v.status}, S = {v.similarity:.2f}")
+
+    def create_templates(self):
+        """Четыре настоящих шаблона Start Bootstrap (MIT) со скриншотами страниц."""
+        for k, (slug, title, sub, seller_i, price, techs, platforms, folder, url) in enumerate(D.TEMPLATES):
+            self.copy_repo(slug, SB_ROOT / folder)
+            p = self.make_product(
+                slug,
+                title,
+                sub,
+                self.sellers[seller_i],
+                price,
+                techs,
+                platforms,
+                None,
+                url,
+                30 + k,
+                description=D.template_description(title, url),
+                short=f"Бесплатный шаблон {D.SB_AUTHOR} (лицензия {D.SB_LICENSE}) на Bootstrap 5, код без изменений.",
+                screens=sorted(SB_SCREENS.glob(f"{folder}-*.jpg")),
+            )
+            v = self.check_and_approve(p)
+            published = self.now - timedelta(days=32 - k * 6)
+            Product.objects.filter(pk=p.pk).update(published_at=published, created_at=published - timedelta(days=1))
+            v.__class__.objects.filter(pk=v.pk).update(approved_at=published, created_at=published - timedelta(hours=6))
+            p.refresh_from_db()
+            self.products[slug] = p
+            self.log(f"{title}: версия {v.status}, S = {v.similarity:.2f}")
+
+        # копия шаблона с переименованными классами — автоотказ
+        slug, title, sub, seller_i, price, orig, renames = D.TEMPLATE_COPY
+        o = next(t for t in D.TEMPLATES if t[0] == orig)
+        self.copy_repo(slug, SB_ROOT / o[7], renames=renames)
+        p = self.make_product(
+            slug,
+            title,
+            sub,
+            self.sellers[seller_i],
+            price,
+            o[5],
+            o[6],
+            None,
+            "",
+            40,
+            description=D.copy_description(title),
+            short="Адаптивный лендинг на Bootstrap 5 с формой подписки и отзывами.",
+            screens=sorted(SB_SCREENS.glob(f"{o[7]}-*.jpg"))[:1],
+        )
+        v = self.check_and_approve(p, approve=False)
+        self.log(f"копия шаблона «{title}» (переименованы классы): {v.status}, S = {v.similarity:.2f}")
 
     def create_copies_and_queue(self):
         from apps.catalog import services as catalog
@@ -285,7 +377,8 @@ class Command(BaseCommand):
             (3, "price-parser", 95, 5), (0, "delivery-calculator", 80, 4), (1, "photo-portfolio", 70, 5),
             (2, "clothing-shop", 60, 4), (3, "survey-bot", 50, 3), (0, "folder-backup", 40, 5),
             (1, "dental-clinic", 35, 5), (2, "reviews-slider", 25, 4), (3, "booking-form", 20, 5),
-            (4, "static-cart", 15, None), (0, "invoice-generator", 12, 4),
+            (4, "static-cart", 15, None), (0, "invoice-generator", 12, 4), (4, "sb-landing-page", 14, 5),
+            (1, "sb-freelancer", 10, 4),
         ]  # fmt: skip
         self.completed = []
         for bi, slug, days, rating in old:

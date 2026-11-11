@@ -92,9 +92,6 @@ class ProfileForm(forms.ModelForm):
         return username
 
     def clean_github_login(self):
-        login = self.cleaned_data["github_login"].strip().lstrip("@")
-        import re
+        from .validators import clean_github_login
 
-        if login and not re.fullmatch(r"[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?", login):
-            raise forms.ValidationError("Похоже, это не логин GitHub.")
-        return login
+        return clean_github_login(self.cleaned_data["github_login"])

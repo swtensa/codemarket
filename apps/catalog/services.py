@@ -357,8 +357,13 @@ def delete_product(product, user):
 
     if product_has_purchases(product):
         raise ServiceError("У продукта есть покупки: его можно только снять с продажи.")
+    if product.purchases.exists() or product.orders.exists():
+        raise ServiceError("По продукту есть начатые покупки, вопросы или заказы: его можно только снять с продажи.")
     for shot in product.screenshots.all():
         shot.image.delete(save=False)
+    for version in product.versions.all():
+        if version.archive:
+            version.archive.delete(save=False)
     product.delete()
 
 

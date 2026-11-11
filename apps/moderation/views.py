@@ -8,6 +8,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from apps.accounts import services as account_services
 from apps.accounts.models import User
@@ -113,4 +114,7 @@ def user_action(request, pk):
                 messages.success(request, f"Пользователь {target.username} разблокирован.")
         except ServiceError as e:
             messages.error(request, str(e))
-    return redirect(request.POST.get("next") or "moderation:users")
+    nxt = request.POST.get("next", "")
+    if not url_has_allowed_host_and_scheme(nxt, allowed_hosts={request.get_host()}):
+        nxt = ""
+    return redirect(nxt or "moderation:users")

@@ -227,12 +227,20 @@ def make_offer(order, user, *, price, days):
     return order
 
 
+def _check_product_on_sale(order):
+    """Если оплата включает продукт, он должен продаваться прямо сейчас."""
+    product = order.product
+    if includes_product(order) and (product.status != Product.Status.PUBLISHED or product.seller.is_blocked):
+        raise ServiceError("Продукт сейчас не продаётся, оплатить его вместе с доработкой нельзя.")
+
+
 @transaction.atomic
 def accept_offer(order, user):
     """Покупатель согласен: offer → awaiting_payment, создаётся платёж. Возвращает адрес оплаты."""
     from apps.payments.services import create_payment
 
     _require(_is_buyer(order, user), "Согласиться с предложением может покупатель")
+    _check_product_on_sale(order)
     change_order_status(order, S.AWAITING_PAYMENT)
     amount = payment_amount(order)
     what = "доработка" + (" и продукт" if includes_product(order) else "")
@@ -246,7 +254,14 @@ def payment_url(order, user):
 
     _require(_is_buyer(order, user) and order.status == S.AWAITING_PAYMENT)
     payment = pending_payment_for(order=order)
+    if payment is not None and payment.amount != payment_amount(order):
+        # цена продукта изменилась или продукт куплен отдельно — старый платёж больше не подходит
+        from apps.payments.services import cancel_pending
+
+        cancel_pending(payment)
+        payment = None
     if payment is None:
+        _check_product_on_sale(order)
         payment = create_payment(
             amount=payment_amount(order), description=f"CodeMarket: доработка «{order.product.title}»", order=order
         )
@@ -254,18 +269,31 @@ def payment_url(order, user):
 
 
 @transaction.atomic
-def on_payment_succeeded(order):
+def on_payment_succeeded(order, payment=None):
     """Оплата подтверждена: awaiting_payment → in_work, срок отсчитывается с оплаты.
 
-    Для «Купить с доработкой» (и вопроса без покупки) создаётся оплаченная покупка с выдачей доступа.
+    Если платёж включал цену продукта («Купить с доработкой» или вопрос без покупки), создаётся
+    оплаченная покупка с выдачей доступа; цена покупки — фактически оплаченная доля продукта.
     """
-    from apps.purchases.services import create_paid_purchase_for_order
+    from apps.payments.services import _alert_admins
+    from apps.purchases.services import active_purchase, create_paid_purchase_for_order
 
     order = CustomOrder.objects.select_for_update().get(pk=order.pk)
     if order.status != S.AWAITING_PAYMENT:
+        _alert_admins(
+            f"Оплачен заказ №{order.pk} в статусе «{order.get_status_display()}»: "
+            "верните деньги покупателю в кабинете ЮKassa."
+        )
         return order
-    if includes_product(order):
-        order.purchase = create_paid_purchase_for_order(order)
+    paid = Decimal(payment.amount) if payment is not None else payment_amount(order)
+    product_part = paid - Decimal(order.price or 0)
+    if product_part > 0:
+        if active_purchase(order.buyer, order.product):
+            _alert_admins(
+                f"Продукт по заказу №{order.pk} уже был куплен отдельно: верните покупателю {product_part:.2f} ₽."
+            )
+        else:
+            order.purchase = create_paid_purchase_for_order(order, price=product_part)
     now = timezone.now()
     order.paid_at = now
     order.deadline = now + timedelta(days=order.days)
@@ -434,11 +462,23 @@ def resolve_dispute(order, *, outcome, refund_amount=0):
 def handle_seller_blocked(seller, admin=None):
     """Продавца заблокировали: new/offer/awaiting_payment → cancelled, in_work/revision/submitted → dispute."""
     from apps.disputes.services import open_system_dispute
+    from apps.payments.models import Payment
+    from apps.payments.services import cancel_pending
 
     count = 0
-    for order in CustomOrder.objects.filter(product__seller=seller, status__in=[S.NEW, S.OFFER, S.AWAITING_PAYMENT]):
+    unpaid = [S.NEW, S.OFFER, S.AWAITING_PAYMENT]
+    for order in CustomOrder.objects.filter(product__seller=seller, status__in=unpaid):
         change_order_status(order, S.CANCELLED, note="Продавец заблокирован")
+        for p in Payment.objects.filter(order=order, status=Payment.Status.PENDING):
+            cancel_pending(p)
         notify(order.buyer, f"Заказ №{order.pk} отменён: продавец заблокирован.", _link(order))
+        count += 1
+    # заблокированный покупатель не сможет оплатить свои неоплаченные заказы
+    for order in CustomOrder.objects.filter(buyer=seller, status__in=unpaid).select_related("product__seller"):
+        change_order_status(order, S.CANCELLED, note="Покупатель заблокирован")
+        for p in Payment.objects.filter(order=order, status=Payment.Status.PENDING):
+            cancel_pending(p)
+        notify(order.product.seller, f"Заказ №{order.pk} отменён: покупатель заблокирован.", _link(order))
         count += 1
     for order in CustomOrder.objects.filter(product__seller=seller, status__in=[S.IN_WORK, S.REVISION, S.SUBMITTED]):
         open_system_dispute(order, admin=admin)
