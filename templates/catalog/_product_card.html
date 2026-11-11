@@ -1,0 +1,24 @@
+{% load cm %}
+<a class="cm-product-card" href="{% url 'catalog:product' p.slug %}">
+  <div class="cm-cover">
+    {% with shot=p.cover %}
+      {% if shot %}<img src="{{ shot.image.url }}" alt="{{ p.title }}" loading="lazy">
+      {% else %}<div class="h-100 d-flex align-items-center justify-content-center text-muted"><i class="bi bi-code-slash fs-1"></i></div>{% endif %}
+    {% endwith %}
+    <span class="cm-section-badge">{{ p.section.name }}</span>
+  </div>
+  <div class="p-3 d-flex flex-column flex-grow-1">
+    <h3 class="h6 fw-bold cm-clamp-2 mb-1">{{ p.title }}</h3>
+    <p class="small text-muted cm-clamp-2 mb-2">{{ p.short_description }}</p>
+    <div class="d-flex flex-wrap gap-1 mb-3">
+      {% for t in p.technologies.all|slice:":3" %}<span class="cm-tag">{{ t.name }}</span>{% endfor %}
+    </div>
+    <div class="mt-auto d-flex align-items-end justify-content-between">
+      <div>
+        <div class="cm-price fs-5">{{ p.price|money }}</div>
+        <div class="small text-muted">{{ p.rating_avg|stars }} {% if p.rating_count %}{{ p.rating_avg|floatformat:1 }} · {{ p.rating_count }}{% else %}нет отзывов{% endif %}</div>
+      </div>
+      <span class="cm-verified" title="Код проверен на заимствования"><i class="bi bi-shield-check"></i> Проверено</span>
+    </div>
+  </div>
+</a>
