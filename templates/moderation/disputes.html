@@ -1,0 +1,32 @@
+{% extends "moderation/_layout.html" %}
+{% load cm %}
+{% block title %}Споры{% endblock %}
+{% block mod_content %}
+<h1 class="h3 mb-3">Споры</h1>
+<ul class="nav nav-pills mb-3">
+  <li class="nav-item"><a class="nav-link{% if status == 'open' %} active{% endif %}" href="?status=open">Открытые</a></li>
+  <li class="nav-item"><a class="nav-link{% if status == 'closed' %} active{% endif %}" href="?status=closed">Закрытые</a></li>
+  <li class="nav-item"><a class="nav-link{% if status == 'all' %} active{% endif %}" href="?status=all">Все</a></li>
+</ul>
+{% if page_obj.object_list %}
+<div class="card"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead><tr><th>Спор</th><th>Причина</th><th>Открыт</th><th>Статус</th><th></th></tr></thead>
+    <tbody>
+    {% for d in page_obj %}
+      <tr>
+        <td><div class="fw-semibold">{% if d.purchase_id %}Покупка №{{ d.purchase_id }} · {{ d.purchase.product.title }}{% else %}Заказ №{{ d.order_id }} · {{ d.order.product.title }}{% endif %}</div><div class="small text-muted">открыл {{ d.opened_by.username }}</div></td>
+        <td class="small">{{ d.get_reason_type_display }}</td>
+        <td class="small text-nowrap">{{ d.opened_at|dt }}</td>
+        <td>{% status_badge d.status d.get_status_display %}{% if d.resolution %}<div class="small text-muted">{{ d.get_resolution_display }}{% if d.refund_amount %}, {{ d.refund_amount|money }}{% endif %}</div>{% endif %}</td>
+        <td><a class="btn btn-sm btn-primary" href="{% url 'moderation:dispute' d.pk %}">{% if d.status == "open" %}Рассмотреть{% else %}Открыть{% endif %}</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% include "includes/pagination.html" %}
+{% else %}
+  <div class="card cm-empty"><i class="bi bi-emoji-smile"></i><p class="mb-0">Споров нет</p></div>
+{% endif %}
+{% endblock %}

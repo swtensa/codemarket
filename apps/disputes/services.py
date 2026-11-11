@@ -151,10 +151,10 @@ def resolve(dispute, admin, *, resolution, refund_amount=None, comment=""):
 
 def dispute_context(dispute):
     """Данные для страницы спора у администратора: переписка, результат, версия кода."""
-    ctx = {"dispute": dispute, "messages": [], "results": [], "version": None}
+    ctx = {"dispute": dispute, "chat_messages": [], "results": [], "version": None}
     if dispute.order_id:
         msgs = list(dispute.order.messages.select_related("author"))
-        ctx["messages"] = msgs
+        ctx["chat_messages"] = msgs
         ctx["results"] = [m for m in msgs if m.is_result]
         ctx["order"] = dispute.order
         ctx["product"] = dispute.order.product
@@ -162,7 +162,7 @@ def dispute_context(dispute):
         ctx["purchase"] = dispute.purchase
         ctx["product"] = dispute.purchase.product
         ctx["version"] = dispute.purchase.version
-        ctx["messages"] = [m for o in dispute.purchase.orders.all() for m in o.messages.select_related("author")]
+        ctx["chat_messages"] = [m for o in dispute.purchase.orders.all() for m in o.messages.select_related("author")]
     from apps.versions.services import current_version
 
     ctx["version"] = ctx["version"] or current_version(ctx["product"])

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load cm %}
+{% block title %}Баланс{% endblock %}
+{% block content %}
+{% if user.is_seller %}{% include "sell/_nav.html" %}{% else %}<h1 class="h3 mb-3">Баланс</h1>{% endif %}
+<div class="row g-3 mb-4">
+  <div class="col-md-4"><div class="cm-stat"><div class="label"><i class="bi bi-hourglass-split me-1"></i>Удержано</div><div class="value">{{ balance.held|money }}</div><div class="small text-muted">станет доступно через {{ HOLD_DAYS }} дн. после продажи</div></div></div>
+  <div class="col-md-4"><div class="cm-stat" style="border-color:var(--c-sage)"><div class="label"><i class="bi bi-wallet2 me-1"></i>Доступно</div><div class="value" style="color:var(--c-sage-text)">{{ balance.available|money }}</div>{% if balance.requested %}<div class="small text-muted">в заявках: {{ balance.requested|money }}</div>{% endif %}</div></div>
+  <div class="col-md-4"><div class="cm-stat"><div class="label"><i class="bi bi-box-arrow-up-right me-1"></i>Выведено</div><div class="value">{{ balance.withdrawn|money }}</div></div></div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="d-flex align-items-center gap-2 mb-2">
+      <h2 class="h5 mb-0 me-auto">Операции</h2>
+      <form method="get" data-no-lock><select class="form-select form-select-sm" name="kind" onchange="this.form.submit()" aria-label="Тип операции">
+        <option value="">Все типы</option>
+        {% for k, label in kinds %}<option value="{{ k }}" {% if k == kind %}selected{% endif %}>{{ label }}</option>{% endfor %}
+      </select></form>
+    </div>
+    {% if page_obj.object_list %}
+    <div class="card"><div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead><tr><th>Дата</th><th>Операция</th><th>Основание</th><th>Статус</th><th class="text-end">Сумма</th></tr></thead>
+        <tbody>
+        {% for op in page_obj %}
+          <tr>
+            <td class="small text-nowrap">{{ op.created_at|dt }}</td>
+            <td>{{ op.get_kind_display }}</td>
+            <td class="small">{% if op.purchase_id %}Покупка №{{ op.purchase_id }}{% elif op.order_id %}<a href="{% url 'orders:detail' op.order_id %}">Заказ №{{ op.order_id }}</a>{% else %}{{ op.requisites|truncatechars:40 }}{% endif %}{% if op.status == "held" and op.available_at %}<div class="text-muted">до {{ op.available_at|dt }}</div>{% endif %}</td>
+            <td>{% status_badge op.status op.get_status_display %}</td>
+            <td class="text-end text-nowrap fw-semibold{% if op.amount < 0 %} text-danger{% endif %}">{{ op.amount|money }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div></div>
+    {% include "includes/pagination.html" %}
+    {% else %}
+      <div class="card cm-empty"><i class="bi bi-receipt"></i><p class="mb-2">Операций пока нет.</p>{% if not user.is_seller %}<a class="btn btn-primary" href="{% url 'sell:dashboard' %}">Начать продавать</a>{% endif %}</div>
+    {% endif %}
+  </div>
+  <div class="col-lg-4">
+    <form method="post" class="card" novalidate><div class="card-body p-4">{% csrf_token %}
+      <h2 class="h5">Вывод денег</h2>
+      <p class="small text-muted">От {{ min_payout|money }} и не больше доступного. Сумма сразу списывается из доступного.</p>
+      <label class="form-label fw-semibold" for="amount">Сумма, ₽ <span class="required-mark">*</span></label>
+      <input class="form-control mb-3" type="number" min="{{ min_payout|floatformat:0 }}" step="1" name="amount" id="amount" required>
+      <label class="form-label fw-semibold" for="requisites">Реквизиты <span class="required-mark">*</span></label>
+      <textarea class="form-control mb-3" name="requisites" id="requisites" rows="3" required placeholder="Номер карты или счёта, банк, получатель"></textarea>
+      <button class="btn btn-primary w-100" {% if balance.available < min_payout %}disabled{% endif %}>Создать заявку</button>
+      {% if balance.available < min_payout %}<div class="form-text">Недостаточно доступных средств.</div>{% endif %}
+    </div></form>
+  </div>
+</div>
+{% endblock %}

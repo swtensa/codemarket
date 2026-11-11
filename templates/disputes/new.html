@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% load cm %}
+{% block title %}Открыть спор{% endblock %}
+{% block breadcrumbs %}<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ back }}">{% if purchase %}Покупка №{{ purchase.pk }}{% else %}Заказ №{{ order.pk }}{% endif %}</a></li><li class="breadcrumb-item active">Открыть спор</li></ol></nav>{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-8">
+  <h1 class="h3 mb-3">Открыть спор: {{ product.title }}</h1>
+  <div class="alert alert-warning d-flex gap-2"><i class="bi bi-exclamation-triangle-fill"></i><div>
+    <strong>Правила спора.</strong>
+    {% if purchase %}Спор по покупке можно открыть в течение {{ HOLD_DAYS }} дней после оплаты{% if days_left %} (осталось {{ days_left }} {{ days_left|plural_ru:"день,дня,дней" }}){% endif %}, если продукт не работает или не соответствует описанию.
+    Причина «передумал» не принимается: после выдачи кода деньги не возвращаются без проверки администратором.
+    {% else %}Спор по заказу останавливает автоматическую приёмку. Администратор изучит переписку и результат работы.{% endif %}
+    Пока спор открыт, деньги продавцу не переводятся.
+  </div></div>
+  <form method="post" class="card" novalidate><div class="card-body p-4">{% csrf_token %}
+    <fieldset class="mb-3">
+      <legend class="form-label fw-semibold fs-6">Причина <span class="required-mark">*</span></legend>
+      {% for code, label in reasons %}
+        <div class="form-check"><input class="form-check-input" type="radio" name="reason_type" id="r-{{ code }}" value="{{ code }}" required {% if request.POST.reason_type == code %}checked{% endif %}><label class="form-check-label" for="r-{{ code }}">{{ label }}</label></div>
+      {% endfor %}
+    </fieldset>
+    <label class="form-label fw-semibold" for="reason">Опишите проблему <span class="required-mark">*</span></label>
+    <textarea class="form-control mb-3" id="reason" name="reason" rows="5" required minlength="10" placeholder="Что именно не работает, какие шаги вы делали, что ожидали увидеть">{{ request.POST.reason }}</textarea>
+    <button class="btn btn-danger" data-confirm="Открыть спор? Решение примет администратор.">Открыть спор</button>
+    <a class="btn btn-link" href="{{ back }}">Отмена</a>
+  </div></form>
+</div></div>
+{% endblock %}
