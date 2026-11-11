@@ -40,7 +40,7 @@
         {% if order.price and includes_product %}<dt class="col-5 fw-normal text-muted">К оплате</dt><dd class="col-7">{{ payment_amount|money }} <span class="text-muted">(с продуктом)</span></dd>{% endif %}
         <dt class="col-5 fw-normal text-muted">Срок</dt><dd class="col-7">{% if order.days %}{{ order.days }} {{ order.days|plural_ru:"день,дня,дней" }}{% else %}—{% endif %}</dd>
         {% if order.deadline %}<dt class="col-5 fw-normal text-muted">Крайняя дата</dt><dd class="col-7">{{ order.deadline|dt }}
-          {% if deadline_left is not None %}<div class="small {% if overdue %}text-danger fw-semibold{% else %}text-muted{% endif %}">{% if overdue %}<i class="bi bi-exclamation-triangle-fill"></i> срок прошёл{% else %}осталось {{ deadline_left.days }} дн. {% widthratio deadline_left.seconds 3600 1 %} ч{% endif %}</div>{% endif %}</dd>{% endif %}
+          {% if deadline_left is not None %}<div class="small {% if overdue %}text-danger fw-semibold{% else %}text-muted{% endif %}">{% if overdue %}<i class="bi bi-exclamation-triangle-fill"></i> срок прошёл{% else %}осталось {{ deadline_left.days }} дн. {{ deadline_hours }} ч{% endif %}</div>{% endif %}</dd>{% endif %}
         <dt class="col-5 fw-normal text-muted">Возвраты</dt><dd class="col-7">{{ order.revisions }} из {{ MAX_REVISIONS|default:2 }}</dd>
         {% if order.purchase_id and is_buyer %}<dt class="col-5 fw-normal text-muted">Покупка</dt><dd class="col-7"><a href="{% url 'me:purchase' order.purchase_id %}">№{{ order.purchase_id }}</a></dd>{% endif %}
       </dl>

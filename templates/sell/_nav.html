@@ -5,8 +5,8 @@
 {% if user.is_seller %}
 <ul class="nav nav-tabs mb-4">
   <li class="nav-item"><a class="nav-link{% if sell_tab == 'products' %} active{% endif %}" href="{% url 'sell:dashboard' %}">Продукты</a></li>
-  <li class="nav-item"><a class="nav-link{% if sell_tab == 'orders' %} active{% endif %}" href="/sell/orders/">Заказы и вопросы</a></li>
-  <li class="nav-item"><a class="nav-link{% if sell_tab == 'stats' %} active{% endif %}" href="/sell/stats/">Статистика</a></li>
-  <li class="nav-item"><a class="nav-link" href="{% url 'balance:index' %}">Баланс</a></li>
+  <li class="nav-item"><a class="nav-link{% if sell_tab == 'orders' %} active{% endif %}" href="{% url 'sell:orders' %}">Заказы и вопросы</a></li>
+  <li class="nav-item"><a class="nav-link{% if sell_tab == 'stats' %} active{% endif %}" href="{% url 'sell:stats' %}">Статистика</a></li>
+  <li class="nav-item"><a class="nav-link{% if sell_tab == 'balance' %} active{% endif %}" href="{% url 'balance:index' %}">Баланс</a></li>
 </ul>
 {% endif %}

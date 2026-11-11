@@ -10,5 +10,5 @@ __pycache__/
 .ruff_cache/
 htmlcov/
 .coverage
-fixtures/demo/repos/*/releases/
+fixtures/demo/repos/
 *.sqlite3

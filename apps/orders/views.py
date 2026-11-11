@@ -85,6 +85,7 @@ def order_detail(request, pk):
             "includes_product": services.includes_product(order),
             "deadline_left": deadline_left,
             "overdue": deadline_left is not None and deadline_left.total_seconds() < 0,
+            "deadline_hours": deadline_left.seconds // 3600 if deadline_left is not None else None,
             "can_write": (order.buyer_id == request.user.id or is_seller) and order.status != "cancelled",
             "can_mark_result": is_seller and order.status in ("in_work", "revision"),
             "dispute": order.disputes.first(),
