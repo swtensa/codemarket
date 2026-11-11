@@ -9,3 +9,8 @@ def product_reviews(product):
 def seller_rating(seller):
     """Средняя оценка продавца по всем отзывам и их число."""
     return None, 0
+
+
+def review_for_purchase(purchase):
+    """Отзыв по покупке или None."""
+    return None

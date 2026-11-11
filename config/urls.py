@@ -23,6 +23,8 @@ urlpatterns = [
     path("_/", _stub("notifications", "list")),
     path("_/", _stub("balance", "index")),
     path("moderation/", include("apps.moderation.urls")),
+    path("payments/", include("apps.payments.urls")),
+    path("", include("apps.purchases.urls")),
     path("", include("apps.catalog.urls")),
 ]
 

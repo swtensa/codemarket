@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load cm %}
+{% block title %}Мои покупки{% endblock %}
+{% block content %}
+{% include "me/_tabs.html" %}
+{% if page_obj.object_list %}
+<div class="card"><div class="table-responsive">
+  <table class="table table-hover align-middle mb-0">
+    <thead><tr><th>Продукт</th><th>Дата</th><th class="text-end">Цена</th><th>Статус</th><th>Доступ</th></tr></thead>
+    <tbody>
+    {% for p in page_obj %}
+      <tr>
+        <td><a class="fw-semibold" href="{% url 'me:purchase' p.pk %}">{{ p.product.title }}</a></td>
+        <td class="small text-nowrap">{{ p.created_at|dt }}</td>
+        <td class="text-end text-nowrap">{{ p.price|money }}</td>
+        <td>{% status_badge p.status p.get_status_display %}</td>
+        <td>{% status_badge p.access_status p.get_access_status_display %}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% include "includes/pagination.html" %}
+{% else %}
+  <div class="card cm-empty"><i class="bi bi-bag"></i><p class="fs-5">Покупок пока нет</p><div><a class="btn btn-primary" href="/">Перейти в каталог</a></div></div>
+{% endif %}
+{% endblock %}

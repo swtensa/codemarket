@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load cm %}
+{% block title %}Покупка: {{ product.title }}{% endblock %}
+{% block breadcrumbs %}<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="/">Каталог</a></li><li class="breadcrumb-item"><a href="{% url 'catalog:product' product.slug %}">{{ product.title }}</a></li><li class="breadcrumb-item active">Оформление покупки</li></ol></nav>{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-8">
+  <h1 class="h3 mb-3">Оформление покупки</h1>
+  <div class="card mb-3"><div class="card-body p-4">
+    <div class="d-flex gap-3 align-items-center">
+      {% with shot=product.cover %}{% if shot %}<img src="{{ shot.image.url }}" alt="" class="rounded" style="width:120px;aspect-ratio:16/10;object-fit:cover">{% endif %}{% endwith %}
+      <div class="flex-grow-1">
+        <div class="fw-bold fs-5">{{ product.title }}</div>
+        <div class="small text-muted">Продавец {{ product.seller.username }} · версия {{ version.tag_name|default:"—" }}</div>
+      </div>
+      <div class="cm-price fs-3">{{ product.price|money }}</div>
+    </div>
+  </div></div>
+
+  <div class="card mb-3"><div class="card-body p-4">
+    <h2 class="h6">Что будет после оплаты</h2>
+    <ul class="mb-0">
+      <li><i class="bi bi-github me-1"></i>Приглашение в закрытый репозиторий с кодом: получайте обновления через <code>git pull</code>.</li>
+      <li><i class="bi bi-file-zip me-1"></i>Скачивание ZIP одобренной версии со страницы покупки.</li>
+      <li><i class="bi bi-arrow-repeat me-1"></i>Все будущие версии бесплатно и без срока.</li>
+      <li><i class="bi bi-shield-check me-1"></i>{{ HOLD_DAYS }} дней на спор, если продукт не работает или не соответствует описанию. Деньги продавцу переводятся только после этого срока.</li>
+      <li><i class="bi bi-info-circle me-1"></i>Возврат по причине «передумал» не предусмотрен: после выдачи кода деньги возвращаются только по решению администратора. <a href="/legal/terms/#refunds" target="_blank">Правила возврата</a></li>
+    </ul>
+  </div></div>
+
+  <form method="post" class="card" novalidate><div class="card-body p-4">{% csrf_token %}
+    <div class="mb-3">
+      <label class="form-label fw-semibold" for="github_login">Логин GitHub</label>
+      <input class="form-control" id="github_login" name="github_login" value="{{ user.github_login }}" placeholder="например, octocat">
+      <div class="form-text">На этот логин придёт приглашение в репозиторий. Можно указать позже, ZIP доступен и без GitHub.</div>
+    </div>
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" name="accept_license" id="accept_license" required>
+      <label class="form-check-label" for="accept_license">Принимаю условия <a href="/legal/license/" target="_blank">стандартной лицензии</a> и <a href="/legal/terms/" target="_blank">пользовательского соглашения</a> <span class="required-mark">*</span></label>
+    </div>
+    <button class="btn btn-accent btn-lg w-100" type="submit"><i class="bi bi-credit-card me-1"></i>Оплатить {{ product.price|money }}</button>
+  </div></form>
+</div></div>
+{% endblock %}
