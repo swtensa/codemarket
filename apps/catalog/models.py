@@ -144,6 +144,9 @@ class Screenshot(models.Model):
         verbose_name = "скриншот"
         verbose_name_plural = "скриншоты"
 
+    def __str__(self):
+        return f"Скриншот {self.position} продукта {self.product_id}"
+
 
 class ProductView(models.Model):
     """Просмотр карточки: не чаще одной записи на сессию в сутки."""
@@ -157,3 +160,6 @@ class ProductView(models.Model):
         indexes = [models.Index(fields=["product", "viewed_at"]), models.Index(fields=["session_key", "product"])]
         verbose_name = "просмотр"
         verbose_name_plural = "просмотры"
+
+    def __str__(self):
+        return f"Просмотр {self.product_id} {self.viewed_at:%d.%m.%Y}"
