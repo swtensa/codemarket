@@ -1,0 +1,25 @@
+/* Учебная заглушка общей библиотеки стилей (имитирует bootstrap.css в двух разных проектах).
+   Написана для теста: проверка должна исключать файл по имени. */
+:root { --gap: 1rem; --radius: .375rem; --primary: #0d6efd; --secondary: #6c757d; }
+.container { width: 100%; padding-right: var(--gap); padding-left: var(--gap); margin-right: auto; margin-left: auto; }
+.row { display: flex; flex-wrap: wrap; margin-right: calc(var(--gap) * -.5); margin-left: calc(var(--gap) * -.5); }
+.col { flex: 1 0 0%; padding: 0 calc(var(--gap) * .5); }
+.col-6 { flex: 0 0 auto; width: 50%; }
+.col-4 { flex: 0 0 auto; width: 33.333333%; }
+.col-3 { flex: 0 0 auto; width: 25%; }
+.btn { display: inline-block; padding: .375rem .75rem; font-size: 1rem; border-radius: var(--radius); border: 1px solid transparent; }
+.btn-primary { color: #fff; background-color: var(--primary); border-color: var(--primary); }
+.btn-secondary { color: #fff; background-color: var(--secondary); border-color: var(--secondary); }
+.card { position: relative; display: flex; flex-direction: column; background: #fff; border: 1px solid rgba(0,0,0,.175); border-radius: var(--radius); }
+.card-body { flex: 1 1 auto; padding: 1rem; }
+.card-title { margin-bottom: .5rem; font-size: 1.25rem; }
+.navbar { position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; padding: .5rem 1rem; }
+.nav-link { display: block; padding: .5rem 1rem; color: var(--primary); text-decoration: none; }
+.alert { position: relative; padding: 1rem; margin-bottom: 1rem; border: 1px solid transparent; border-radius: var(--radius); }
+.d-flex { display: flex !important; }
+.d-none { display: none !important; }
+.mt-3 { margin-top: 1rem !important; }
+.mb-3 { margin-bottom: 1rem !important; }
+.text-center { text-align: center !important; }
+@media (min-width: 768px) { .col-md-6 { flex: 0 0 auto; width: 50%; } .d-md-flex { display: flex !important; } }
+@media (min-width: 992px) { .col-lg-4 { flex: 0 0 auto; width: 33.333333%; } .d-lg-none { display: none !important; } }

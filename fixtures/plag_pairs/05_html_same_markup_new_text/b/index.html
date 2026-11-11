@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Пекарня «Колос»</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-row">
+      <a class="logo" href="#">Колос</a>
+      <nav class="main-nav">
+        <a href="#menu">Меню</a>
+        <a href="#about">О нас</a>
+        <a href="#contacts">Контакты</a>
+      </nav>
+      <a class="btn btn-call" href="tel:+73420000000">Позвонить</a>
+    </div>
+  </header>
+  <section class="hero">
+    <div class="container">
+      <h1 class="hero-title">Хлеб из печи каждое утро</h1>
+      <p class="hero-text">Печём хлеб на закваске по семейным рецептам. Свежая выпечка с семи утра.</p>
+      <a class="btn btn-primary" href="#menu">Ассортимент</a>
+    </div>
+  </section>
+  <section id="menu" class="menu">
+    <div class="container">
+      <h2 class="section-title">Меню</h2>
+      <div class="menu-grid">
+        <article class="menu-card"><h3>Багет</h3><p>Хрустящая корочка</p><span class="price">90 ₽</span></article>
+        <article class="menu-card"><h3>Чиабатта</h3><p>Итальянский рецепт</p><span class="price">120 ₽</span></article>
+        <article class="menu-card"><h3>Бородинский</h3><p>С кориандром</p><span class="price">110 ₽</span></article>
+        <article class="menu-card"><h3>Синнабон</h3><p>С корицей</p><span class="price">140 ₽</span></article>
+      </div>
+    </div>
+  </section>
+  <section id="about" class="about">
+    <div class="container about-row">
+      <div class="about-text">
+        <h2 class="section-title">О нас</h2>
+        <p>Работаем с 2015 года, муку берём у уральских фермеров.</p>
+        <ul class="features"><li>Мука цельнозерновая</li><li>Без дрожжей</li><li>Доставка по городу</li></ul>
+      </div>
+      <img class="about-photo" src="img/cafe.jpg" alt="Витрина пекарни">
+    </div>
+  </section>
+  <footer id="contacts" class="site-footer">
+    <div class="container footer-row">
+      <p>Пермь, ул. Мира, 5</p>
+      <p>Ежедневно 7:00–21:00</p>
+      <form class="subscribe" action="#" method="post">
+        <input type="email" name="email" placeholder="Ваш email" required>
+        <button class="btn btn-primary" type="submit">Подписаться</button>
+      </form>
+    </div>
+  </footer>
+</body>
+</html>
