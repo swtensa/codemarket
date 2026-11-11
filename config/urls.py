@@ -22,7 +22,7 @@ urlpatterns = [
     path("sell/", include("apps.catalog.sell_urls")),
     path("_/", _stub("notifications", "list")),
     path("_/", _stub("balance", "index")),
-    path("_/", _stub("moderation", "queue")),
+    path("moderation/", include("apps.moderation.urls")),
     path("", include("apps.catalog.urls")),
 ]
 
