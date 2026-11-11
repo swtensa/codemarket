@@ -14,3 +14,8 @@ def product_has_purchases(product):
 def active_purchase(user, product):
     """Действующая покупка пользователя (paid/completed/dispute) или None."""
     return None
+
+
+def notify_new_version(product, version):
+    """Уведомить покупателей о новой одобренной версии."""
+    return 0

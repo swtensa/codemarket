@@ -170,3 +170,22 @@ def plural_ru(n, forms):
     if 2 <= n % 10 <= 4 and not 12 <= n % 100 <= 14:
         return few
     return many
+
+
+@register.filter
+def styled(bound_field):
+    """Отрисовать виджет поля с классами Bootstrap и отметкой ошибки."""
+    from django import forms
+
+    w = bound_field.field.widget
+    invalid = " is-invalid" if bound_field.errors else ""
+    if isinstance(w, forms.CheckboxInput):
+        css = "form-check-input"
+    elif isinstance(w, forms.Select | forms.SelectMultiple) and not isinstance(w, forms.CheckboxSelectMultiple):
+        css = "form-select"
+    else:
+        css = "form-control"
+    attrs = {"class": (w.attrs.get("class", "") + " " + css + invalid).strip()}
+    if bound_field.field.required and not isinstance(w, forms.CheckboxInput):
+        attrs["aria-required"] = "true"
+    return bound_field.as_widget(attrs=attrs)

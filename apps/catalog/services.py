@@ -81,7 +81,7 @@ def on_version_checked(product, *, rejected_auto):
 def on_version_appealed(product):
     """Обжалование автоотказа отправляет продукт на модерацию."""
     if product.status == Product.Status.REJECTED:
-        product.status = Product.Status.CHECKING
+        change_product_status(product, Product.Status.CHECKING)
         change_product_status(product, Product.Status.MODERATION)
 
 

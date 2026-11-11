@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Подключение GitHub{% endblock %}
+{% block breadcrumbs %}<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'sell:dashboard' %}">Продажи</a></li><li class="breadcrumb-item active">Подключение GitHub</li></ol></nav>{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-lg-8">
+  <div class="card"><div class="card-body p-4">
+    <h1 class="h3"><i class="bi bi-github me-2"></i>Подключение GitHub</h1>
+    {% if user.is_seller %}
+      <div class="alert alert-success d-flex gap-2"><i class="bi bi-check-circle-fill"></i><div>GitHub уже подключён. Установка № {{ user.github_installation_id }}.</div></div>
+    {% endif %}
+    <ol class="mb-4">
+      <li>Нажмите кнопку ниже и установите приложение CodeMarket на репозитории с продуктами (личные или организации).</li>
+      <li>При создании продукта выберите репозиторий из списка.</li>
+      <li>Создайте релиз в репозитории и нажмите «Проверить релиз» на странице версий.</li>
+    </ol>
+    {% if fake %}
+      <div class="alert alert-info d-flex gap-2"><i class="bi bi-info-circle-fill"></i><div>Включён демо-режим GitHub (<code>GITHUB_MODE=fake</code>): репозитории берутся из папки <code>fixtures/demo/repos</code>, интернет не нужен.</div></div>
+      <form method="post">{% csrf_token %}<button class="btn btn-primary btn-lg" type="submit"><i class="bi bi-github me-2"></i>Подключить GitHub (демо)</button></form>
+    {% else %}
+      <a class="btn btn-primary btn-lg" href="{{ install_url }}"><i class="bi bi-github me-2"></i>Установить приложение на GitHub</a>
+    {% endif %}
+  </div></div>
+</div></div>
+{% endblock %}

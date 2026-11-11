@@ -1,0 +1,26 @@
+{% load cm %}
+<div class="card"><div class="card-body p-4">
+  <h2 class="h5"><i class="bi bi-tag me-1"></i>Проверить релиз</h2>
+  <p class="text-muted small">Репозиторий: <code>{{ product.source_repo_full_name|default:"не выбран" }}</code>. Создайте релиз на GitHub и отправьте его на проверку на заимствования.</p>
+  {% if release_error %}
+    <div class="alert alert-danger d-flex gap-2 mb-0"><i class="bi bi-exclamation-octagon-fill"></i><div>{{ release_error }}</div></div>
+  {% elif releases %}
+    <ul class="list-group">
+      {% for item in releases %}
+        <li class="list-group-item d-flex align-items-center gap-2">
+          <span class="fw-semibold">{{ item.release.tag_name }}</span>
+          <span class="small text-muted">{{ item.release.published_at|dt }}</span>
+          {% if item.imported %}<span class="ms-auto">{% status_badge "approved" "Получен" %}</span>
+          {% else %}
+            <form class="ms-auto" method="post" action="{% url 'sell:import_release' product.pk %}">{% csrf_token %}
+              <input type="hidden" name="tag" value="{{ item.release.tag_name }}">
+              <button class="btn btn-sm btn-accent" type="submit"><i class="bi bi-shield-check me-1"></i>Отправить на проверку</button>
+            </form>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <div class="cm-empty py-3"><i class="bi bi-tag"></i>В репозитории пока нет релизов. Создайте релиз на GitHub и обновите страницу.</div>
+  {% endif %}
+</div></div>

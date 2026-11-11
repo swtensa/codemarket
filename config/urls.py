@@ -19,7 +19,7 @@ urlpatterns = [
     path("accounts/", include("apps.accounts.urls")),
     path("me/", include("apps.accounts.me_urls")),
     path("legal/", include("apps.core.legal_urls")),
-    path("_/", _stub("sell", "dashboard")),
+    path("sell/", include("apps.catalog.sell_urls")),
     path("_/", _stub("notifications", "list")),
     path("_/", _stub("balance", "index")),
     path("_/", _stub("moderation", "queue")),

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% load cm %}
+{% block title %}Версии: {{ product.title }}{% endblock %}
+{% block content %}
+{% with ptab="versions" %}{% include "sell/_product_tabs.html" %}{% endwith %}
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="card">
+      {% if versions %}
+      <div class="table-responsive"><table class="table align-middle mb-0">
+        <thead><tr><th>Тег</th><th>Статус</th><th style="min-width:150px">Сходство</th><th>Получена</th></tr></thead>
+        <tbody>
+        {% for v in versions %}
+          <tr>
+            <td class="fw-semibold">{{ v.tag_name }}<div class="small text-muted">{{ v.files_count }} файлов</div></td>
+            <td>{% status_badge v.status v.get_status_display %}{% if v.flagged %}<div class="small mt-1" style="color:var(--c-warning-text)"><i class="bi bi-flag-fill"></i> отмечена для модератора</div>{% endif %}</td>
+            <td>
+              {% if v.similarity is not None %}
+                <div class="d-flex align-items-center gap-2"><div class="cm-sim cm-sim-{{ v.similarity|similarity_tone }} flex-grow-1"><div style="width:{% widthratio v.similarity 1 100 %}%"></div></div><span class="small">{{ v.similarity|percent }}</span></div>
+              {% elif v.status == "checking" %}<span class="small text-muted"><span class="spinner-border spinner-border-sm me-1"></span>Проверяется</span>{% else %}—{% endif %}
+            </td>
+            <td class="small text-nowrap">{{ v.created_at|dt }}</td>
+          </tr>
+          {% if v.admin_comment or v.check_error %}
+            <tr><td colspan="4" class="small bg-light"><i class="bi bi-chat-left-text me-1"></i>{% if v.admin_comment %}Комментарий модератора: {{ v.admin_comment }}{% else %}Ошибка проверки: {{ v.check_error }}{% endif %}</td></tr>
+          {% endif %}
+          {% if v.status == "rejected_auto" %}
+            <tr><td colspan="4" class="bg-light">
+              {% if v.match_list %}
+                <div class="small fw-semibold mb-1">Совпадения с продуктами каталога:</div>
+                <ul class="small mb-2">
+                  {% for m in v.match_list %}<li>«{{ m.matched_version.product.title }}» ({{ m.matched_version.tag_name }}) — {{ m.similarity|percent }}{% if m.files %}: {{ m.files|join:", " }}{% endif %}</li>{% endfor %}
+                </ul>
+              {% endif %}
+              <form method="post" action="{% url 'sell:appeal' v.pk %}">{% csrf_token %}
+                <label class="form-label small fw-semibold" for="appeal-{{ v.pk }}">Обжаловать автоматический отказ <span class="required-mark">*</span></label>
+                <textarea class="form-control form-control-sm mb-2" name="appeal_text" id="appeal-{{ v.pk }}" rows="2" required minlength="10" placeholder="Например: совпадает только стандартная разметка формы, весь код написан мной"></textarea>
+                <button class="btn btn-sm btn-primary" type="submit">Обжаловать</button>
+              </form>
+            </td></tr>
+          {% elif v.status == "appeal" %}
+            <tr><td colspan="4" class="small bg-light"><i class="bi bi-hourglass-split me-1"></i>Обжалование у модератора: «{{ v.appeal_text }}»</td></tr>
+          {% endif %}
+        {% endfor %}
+        </tbody>
+      </table></div>
+      {% else %}
+        <div class="cm-empty"><i class="bi bi-tags"></i>Версий пока нет. Отправьте релиз на проверку.</div>
+      {% endif %}
+    </div>
+    <p class="small text-muted mt-2">Сходство: <span style="color:var(--c-sage-text)">до 30 % — норма</span>, 30–70 % — модератор проверит внимательнее, от 70 % — автоматический отказ с возможностью обжалования.</p>
+  </div>
+  <div class="col-lg-4">{% include "sell/_releases.html" %}</div>
+</div>
+{% endblock %}

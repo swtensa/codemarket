@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Редактирование: {{ product.title }}{% endblock %}
+{% block content %}
+{% with ptab="edit" %}{% include "sell/_product_tabs.html" %}{% endwith %}
+<div class="card"><div class="card-body p-4">
+  <form method="post" novalidate>{% csrf_token %}
+    {% include "includes/form_errors.html" %}
+    <div class="row g-3">
+      <div class="col-lg-7">
+        {% include "includes/field.html" with field=form.title %}
+        {% include "includes/field.html" with field=form.short_description %}
+        {% include "includes/field.html" with field=form.description %}
+      </div>
+      <div class="col-lg-5">
+        {% include "includes/field.html" with field=form.price %}
+        {% include "includes/field.html" with field=form.category %}
+        {% include "includes/field.html" with field=form.demo_url %}
+        <div class="mb-3"><label class="form-label fw-semibold">Репозиторий</label><input class="form-control" value="{{ product.source_repo_full_name }}" disabled></div>
+      </div>
+    </div>
+    {% include "includes/field.html" with field=form.technologies %}
+    {% include "includes/field.html" with field=form.platforms %}
+    <button class="btn btn-primary" type="submit">Сохранить</button>
+  </form>
+</div></div>
+{% endblock %}

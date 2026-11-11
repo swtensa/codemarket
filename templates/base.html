@@ -48,7 +48,7 @@
               <ul class="dropdown-menu dropdown-menu-end" data-bs-theme="light">
                 <li><a class="dropdown-item" href="{% url 'me:purchases' %}"><i class="bi bi-bag me-2"></i>Покупки</a></li>
                 <li><a class="dropdown-item" href="{% url 'me:orders' %}"><i class="bi bi-chat-square-text me-2"></i>Заказы</a></li>
-                <li><a class="dropdown-item" href="{% url 'sell:dashboard' %}"><i class="bi bi-shop me-2"></i>Продажи</a></li>
+                {% if user.is_seller %}<li><a class="dropdown-item" href="{% url 'sell:dashboard' %}"><i class="bi bi-shop me-2"></i>Продажи</a></li>{% endif %}
                 <li><a class="dropdown-item" href="{% url 'balance:index' %}"><i class="bi bi-wallet2 me-2"></i>Баланс</a></li>
                 <li><a class="dropdown-item" href="{% url 'me:profile' %}"><i class="bi bi-person me-2"></i>Профиль</a></li>
                 {% if user.is_staff %}

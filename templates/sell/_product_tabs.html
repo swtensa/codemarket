@@ -1,0 +1,12 @@
+{% load cm %}
+<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'sell:dashboard' %}">Продажи</a></li><li class="breadcrumb-item active">{{ product.title }}</li></ol></nav>
+<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+  <h1 class="h3 mb-0 me-auto">{{ product.title }}</h1>
+  {% status_badge product.status product.get_status_display %}
+  <a class="btn btn-sm btn-outline-primary" href="{% url 'catalog:product' product.slug %}"><i class="bi bi-box-arrow-up-right me-1"></i>Страница продукта</a>
+</div>
+<ul class="nav nav-tabs mb-4">
+  <li class="nav-item"><a class="nav-link{% if ptab == 'edit' %} active{% endif %}" href="{% url 'sell:product_edit' product.pk %}">Описание</a></li>
+  <li class="nav-item"><a class="nav-link{% if ptab == 'media' %} active{% endif %}" href="{% url 'sell:product_media' product.pk %}">Скриншоты и релиз</a></li>
+  <li class="nav-item"><a class="nav-link{% if ptab == 'versions' %} active{% endif %}" href="{% url 'sell:versions' product.pk %}">Версии</a></li>
+</ul>
