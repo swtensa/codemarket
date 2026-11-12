@@ -9,6 +9,8 @@ from fastapi.staticfiles import StaticFiles
 from .core.config import settings
 from .core.errors import install_handlers
 from .core.logging import setup_logging
+from .core.middleware import install_middleware
+from .routers import ROUTERS
 
 setup_logging()
 
@@ -20,6 +22,9 @@ app = FastAPI(
     openapi_url="/api/openapi.json",
 )
 install_handlers(app)
+install_middleware(app)
+for _router in ROUTERS:
+    app.include_router(_router)
 
 
 @app.get("/api/health", tags=["служебное"])

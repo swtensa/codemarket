@@ -85,7 +85,11 @@ def install_handlers(app: FastAPI) -> None:
         body: dict = {"detail": exc.message}
         if exc.fields:
             body["fields"] = exc.fields
-        return JSONResponse(body, status_code=exc.status_code)
+        response = JSONResponse(body, status_code=exc.status_code)
+        if getattr(exc, "clear_auth", False):
+            response.delete_cookie("access_token", path="/")
+            response.delete_cookie("refresh_token", path="/")
+        return response
 
     @app.exception_handler(RequestValidationError)
     async def _validation(_: Request, exc: RequestValidationError):
