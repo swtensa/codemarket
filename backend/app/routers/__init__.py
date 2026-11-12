@@ -1,5 +1,5 @@
-"""Роутеры API. Порядок подключения не важен: у всех свой префикс /api/..."""
+"""Роутеры API. У каждого свой префикс /api/..."""
 
-from . import auth
+from . import admin, auth, catalog, github, seller
 
-ROUTERS = [auth.router]
+ROUTERS = [auth.router, catalog.router, seller.router, admin.router, github.router]

@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Кофейня «Зерно»</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-row">
+      <a class="logo" href="#">Зерно</a>
+      <nav class="main-nav">
+        <a href="#menu">Меню</a>
+        <a href="#about">О нас</a>
+        <a href="#contacts">Контакты</a>
+      </nav>
+      <a class="btn btn-call" href="tel:+73420000000">Позвонить</a>
+    </div>
+  </header>
+  <section class="hero">
+    <div class="container">
+      <h1 class="hero-title">Свежая обжарка каждый день</h1>
+      <p class="hero-text">Готовим кофе из зёрен, которые обжариваем сами. Заходите на завтрак или берите с собой.</p>
+      <a class="btn btn-primary" href="#menu">Смотреть меню</a>
+    </div>
+  </section>
+  <section id="menu" class="menu">
+    <div class="container">
+      <h2 class="section-title">Меню</h2>
+      <div class="menu-grid">
+        <article class="menu-card"><h3>Эспрессо</h3><p>Плотный и ароматный</p><span class="price">150 ₽</span></article>
+        <article class="menu-card"><h3>Капучино</h3><p>С нежной молочной пеной</p><span class="price">220 ₽</span></article>
+        <article class="menu-card"><h3>Раф</h3><p>Сливочный, с ванилью</p><span class="price">260 ₽</span></article>
+        <article class="menu-card"><h3>Круассан</h3><p>Хрустящий, из печи</p><span class="price">180 ₽</span></article>
+      </div>
+    </div>
+  </section>
+  <section id="about" class="about">
+    <div class="container about-row">
+      <div class="about-text">
+        <h2 class="section-title">О нас</h2>
+        <p>Мы открылись в 2019 году и с тех пор обжариваем зерно небольшими партиями.</p>
+        <ul class="features"><li>Зерно из Эфиопии и Колумбии</li><li>Альтернативное молоко</li><li>Завтраки до 12:00</li></ul>
+      </div>
+      <img class="about-photo" src="img/cafe.jpg" alt="Зал кофейни">
+    </div>
+  </section>
+  <footer id="contacts" class="site-footer">
+    <div class="container footer-row">
+      <p>Пермь, ул. Ленина, 10</p>
+      <p>Ежедневно 8:00–22:00</p>
+      <form class="subscribe" action="#" method="post">
+        <input type="email" name="email" placeholder="Ваш email" required>
+        <button class="btn btn-primary" type="submit">Подписаться</button>
+      </form>
+    </div>
+  </footer>
+</body>
+</html>
