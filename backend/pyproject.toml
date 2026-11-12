@@ -1,0 +1,23 @@
+[project]
+name = "codemarket"
+version = "2.0.0"
+description = "CodeMarket: площадка готового кода (FastAPI + React)"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = ["alembic/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM"]
+ignore = ["E501", "B008", "B904"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-p no:cacheprovider"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.coverage.run]
+source = ["app"]
+omit = ["app/integrations/github/client.py", "app/integrations/payments/yookassa.py", "app/scheduler.py"]

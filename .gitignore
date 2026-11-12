@@ -12,3 +12,14 @@ htmlcov/
 .coverage
 fixtures/demo/repos/
 *.sqlite3
+
+# FastAPI + React
+backend/.venv/
+backend/.env
+backend/storage/
+backend/logs/
+backend/fixtures/demo/repos/
+backend/htmlcov/
+backend/.coverage
+frontend/node_modules/
+frontend/dist/
