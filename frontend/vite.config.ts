@@ -1,11 +1,11 @@
 /// <reference types="vitest/config" />
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 
-// Сервер FastAPI в режиме разработки; для проверки на другом порту: $env:API_TARGET="http://127.0.0.1:8010"
-const target = process.env.API_TARGET ?? 'http://127.0.0.1:8000'
-
-export default defineConfig({
+// Адрес FastAPI в режиме разработки; другой порт можно задать в frontend/.env.local: API_TARGET=http://127.0.0.1:8010
+export default defineConfig(({ mode }) => {
+  const target = loadEnv(mode, process.cwd(), '').API_TARGET || 'http://127.0.0.1:8000'
+  return {
   plugins: [react()],
   server: {
     port: 5173,
@@ -20,4 +20,5 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     css: false,
   },
+  }
 })
