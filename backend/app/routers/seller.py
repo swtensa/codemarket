@@ -263,9 +263,9 @@ def media(pk: int, db: DB, user: SellerUser):
 
 
 @router.post("/products/{pk}/screenshots", response_model=MediaOut)
-async def upload_screenshots(pk: int, db: DB, user: SellerUser, images: list[UploadFile] = File(...)):  # noqa: B008
+def upload_screenshots(pk: int, db: DB, user: SellerUser, images: list[UploadFile] = File(...)):  # noqa: B008
     product = own_product(db, user, pk)
-    files = [(f.filename or "image", await f.read()) for f in images if f.filename]
+    files = [(f.filename or "image", f.file.read()) for f in images if f.filename]
     if not files:
         raise ServiceError("Выберите файлы.")
     svc.add_screenshots(db, product, user, files)
