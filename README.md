@@ -6,56 +6,61 @@
 приёмки и проверяет код новых версий на заимствования (алгоритм winnowing).
 
 Курсовая работа, НИУ ВШЭ Пермь, «Разработка информационных систем для бизнеса».
-Техническое задание — [docs/TZ.md](docs/TZ.md), руководство программиста — [docs/programmer_guide.md](docs/programmer_guide.md),
+Техническое задание — [docs/TZ.md](docs/TZ.md), ТЗ перехода на FastAPI + React — [docs/TZ_fastapi_react.md](docs/TZ_fastapi_react.md),
+руководство программиста (с перечнем адресов API) — [docs/programmer_guide.md](docs/programmer_guide.md),
 руководство пользователя — [docs/user_guide.md](docs/user_guide.md), ручные тестовые сценарии — [docs/test_cases.md](docs/test_cases.md).
 
 ## Технологии
 
-Python 3.12+ (проверено на 3.14), Django 5.2, PostgreSQL 16+ (проверено на 18), Bootstrap 5.3, Chart.js,
-Pygments, openpyxl, ЮKassa (`yookassa`), GitHub App (`requests` + `PyJWT`), pytest, ruff.
-Фоновые задачи — команды Django, их запускает `run_scheduler` (без Celery, Redis и cron).
+* Сервер (`backend/`): Python 3.12+ (проверено на 3.14), FastAPI, Uvicorn, SQLAlchemy 2, Alembic, PostgreSQL 16+
+  (проверено на 18), Pydantic 2, JWT в httpOnly cookie с CSRF, APScheduler, Pygments, openpyxl,
+  ЮKassa (`yookassa`), GitHub App (`requests` + `PyJWT`), pytest, ruff.
+* Интерфейс (`frontend/`): React 19, TypeScript, Vite, React Router, TanStack Query, клиент API с типами из
+  OpenAPI, react-hook-form + zod, Bootstrap 5, Bootstrap Icons, шрифт Manrope, Chart.js, Vitest, ESLint, Prettier.
+  Всё ставится из npm, CDN не используется: сайт полностью работает без интернета.
 
 ## Установка (Windows, PowerShell)
 
+Нужны Python 3.12+, Node.js 20+ и PostgreSQL 16+.
+
 ```powershell
+# пользователь и база (спросит пароль суперпользователя postgres)
+& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -h localhost -f scripts\create_db.sql
+
+cd backend
 python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
-copy .env.example .env
+copy .env.example .env      # задайте SECRET_KEY и пароль базы в DATABASE_URL (как в scripts\create_db.sql)
+cd ..\frontend
+npm install
+cd ..
 ```
 
-В `.env` задайте `SECRET_KEY` и пароль базы в `DATABASE_URL`. Тот же пароль впишите в `scripts\create_db.sql`
-и создайте пользователя и базу (команда спросит пароль суперпользователя `postgres`):
+## Запуск для защиты
 
 ```powershell
-& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -h localhost -f scripts\create_db.sql
+.\seed.ps1      # миграции и демо-данные (таблицы приложения очищаются и заполняются заново)
+.\start.ps1     # сборка интерфейса (если нужна), миграции, сервер и планировщик в двух окнах
 ```
 
-## Запуск в демо-режиме (без интернета)
+Сайт: http://127.0.0.1:8000/ , документация API: http://127.0.0.1:8000/api/docs ,
+модерация: http://127.0.0.1:8000/moderation/ . `.\start.ps1 -Build` пересобирает интерфейс после изменений.
 
-По умолчанию в `.env` включены фейковые интеграции: `PAYMENT_PROVIDER=fake` и `GITHUB_MODE=fake`.
+По умолчанию в `backend\.env` включены фейковые интеграции: `PAYMENT_PROVIDER=fake` (тестовая страница оплаты)
+и `GITHUB_MODE=fake` (репозитории из `backend\fixtures\demo\repos`, интернет не нужен).
+
+## Запуск для разработки
+
+Три окна PowerShell:
 
 ```powershell
-python manage.py migrate
-python manage.py seed_demo
-python manage.py runserver
+cd backend; .venv\Scripts\activate; uvicorn app.main:app --reload     # API
+cd backend; .venv\Scripts\activate; python -m app.scheduler          # фоновые задачи
+cd frontend; npm run dev                                              # интерфейс: http://localhost:5173
 ```
 
-Во втором окне PowerShell запустите планировщик фоновых задач (проверка версий, выдача доступа,
-отмена неоплаченных покупок, автоприёмка заказов, перевод денег из удержания):
-
-```powershell
-.venv\Scripts\activate
-python manage.py run_scheduler
-```
-
-Сайт: http://127.0.0.1:8000/ , панель администратора площадки: http://127.0.0.1:8000/moderation/ ,
-Django admin (справочники): http://127.0.0.1:8000/admin/
-
-`python manage.py seed_demo --reset` очищает базу и файлы и создаёт демо-данные заново.
-
-Bootstrap, Bootstrap Icons, шрифт Manrope и Chart.js лежат в `static/vendor/` (версии и лицензии —
-в `static/vendor/README.md`), поэтому сайт целиком, вместе с оформлением, работает без интернета.
+После изменения API обновите типы интерфейса: `npm run gen:api` (сервер должен быть запущен).
 
 ## Демо-логины
 
@@ -67,49 +72,43 @@ Bootstrap, Bootstrap Icons, шрифт Manrope и Chart.js лежат в `static
 | Продавцы | webstudio@demo.ru, anna@demo.ru, codecraft@demo.ru, botmaster@demo.ru, pyscripts@demo.ru |
 | Покупатели | buyer1@demo.ru … buyer5@demo.ru (у buyer5 нет логина GitHub) |
 
-Демо-продукты:
+Демо-продукты: 16 карточек с «кодом» в несколько строк; 4 настоящих бесплатных шаблона
+[Start Bootstrap](https://startbootstrap.com) (автор Start Bootstrap LLC, лицензия MIT, файл `LICENSE` сохранён);
+две копии карточек и копия шаблона Landing Page с переименованными классами — проверка отклоняет их
+автоматически (сходство 1,00 и 0,80). Заказы есть во всех статусах, есть спор, возврат и заявки на вывод.
 
-* 16 карточек с «кодом» в несколько строк (так решил автор). Код у продуктов разный, а два продукта-копии
-  («Лендинг кафе «Бариста»», «Калькулятор стоимости доставки PRO») отклоняются проверкой автоматически;
-* 4 настоящих бесплатных шаблона [Start Bootstrap](https://startbootstrap.com) — Landing Page, Freelancer,
-  Small Business, Shop Homepage (автор Start Bootstrap LLC, лицензия MIT, файл `LICENSE` сохранён).
-  Файлы шаблонов — `fixtures/demo/startbootstrap/`, скриншоты страниц — `fixtures/demo/startbootstrap_screens/`;
-* копия шаблона Landing Page с переименованными классами блоков («Лендинг для стартапа «Старт»», продавец
-  codecraft): проверка находит сходство 0,80 и отклоняет её автоматически.
+## Фоновые задачи
 
-## Фоновые команды
-
-| Команда | Что делает | Интервал в `run_scheduler` |
+| Задача | Что делает | Интервал |
 |---|---|---|
 | `process_checks` | проверка новых версий на заимствования | 1 мин |
-| `sync_access` | приглашения покупателей в репозитории-копии | 1 мин |
+| `send_invites` | приглашения покупателей в репозитории-копии | 1 мин |
 | `cancel_unpaid` | отмена покупок, не оплаченных за 30 минут | 5 мин |
 | `auto_accept` | автоприёмка сданных заказов через 3 дня | 10 мин |
+| `check_deadlines` | отметка просроченных заказов в чате и уведомления | 10 мин |
 | `release_funds` | перевод денег из удержания через 7 дней | 1 ч |
 
-Любую команду можно запустить вручную: `python manage.py process_checks`.
-`python manage.py run_scheduler --once` выполняет все задачи один раз.
+Вручную: `cd backend; python -m app.cli process_checks` (и другие имена из таблицы);
+`python -m app.scheduler --once` выполняет все задачи один раз.
 
 ## Тесты и качество кода
 
 ```powershell
-python -m pytest
+cd backend
+python -m pytest            # тестовая база codemarket_test создаётся автоматически
+coverage run -m pytest
+coverage report             # покрытие backend — 91 %
 ruff check .
 ruff format .
-coverage run -m pytest
-coverage report
-coverage html
-```
+python -m app.cli plag_calibrate   # таблица коэффициентов сходства для главы 4
 
-Отчёт о покрытии открывается из `htmlcov\index.html`. Сейчас: 202 теста, покрытие сервисов 91 %, всего проекта 87 %.
-
-Калибровка проверки на заимствования (таблица коэффициентов для главы 4):
-
-```powershell
-python manage.py plag_calibrate
+cd ..\frontend
+npm test                    # Vitest
+npm run lint
+npm run typecheck
 ```
 
 ## Реальные ЮKassa и GitHub
 
 Как подключить тестовый магазин ЮKassa, GitHub App и вебхуки через туннель, описано в
-[docs/programmer_guide.md](docs/programmer_guide.md), раздел 8.
+[docs/programmer_guide.md](docs/programmer_guide.md), раздел 12.

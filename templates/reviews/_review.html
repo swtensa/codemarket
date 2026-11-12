@@ -1,8 +1,0 @@
-{% load cm %}
-<div class="mb-3 pb-3 border-bottom">
-  <div class="d-flex justify-content-between">
-    <div><span class="fw-semibold">{{ r.author.username }}</span> {{ r.rating|stars }}</div>
-    <div class="small text-muted">{{ r.created_at|d }}</div>
-  </div>
-  {% if r.text %}<div class="mt-1">{{ r.text|linebreaksbr }}</div>{% endif %}
-</div>
