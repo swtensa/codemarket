@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link, NavLink } from 'react-router'
 

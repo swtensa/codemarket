@@ -713,3 +713,11 @@ a {
 .cm-header .nav-link.btn {
   border: 0;
 }
+
+/* Таблица продуктов продавца: на широком экране меню «Действия» не обрезается */
+@media (min-width: 992px) {
+  .cm-table-menu {
+    overflow: visible;
+    padding-bottom: 0 !important;
+  }
+}

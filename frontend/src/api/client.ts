@@ -52,7 +52,12 @@ const auth: Middleware = {
   },
 }
 
-export const client = createClient<paths>({ baseUrl: '', credentials: 'same-origin' })
+// Абсолютный адрес нужен Request в тестах (jsdom); в браузере это тот же сайт
+export const client = createClient<paths>({
+  baseUrl: window.location.origin,
+  credentials: 'same-origin',
+  fetch: (request) => globalThis.fetch(request), // fetch берётся в момент запроса (подмена в тестах)
+})
 client.use(auth)
 
 /** Ошибка API: текст для пользователя и ошибки отдельных полей. */

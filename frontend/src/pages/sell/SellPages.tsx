@@ -133,7 +133,7 @@ export function SellDashboardPage() {
           )}
           {q.data.products.length ? (
             <div className="card">
-              <div className="table-responsive" style={{ overflow: 'visible' }}>
+              <div className="table-responsive cm-table-menu" style={{ paddingBottom: openMenu ? 230 : 0 }}>
                 <table className="table table-hover align-middle mb-0">
                   <thead>
                     <tr>
