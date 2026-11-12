@@ -1,19 +1,4 @@
-.venv/
-.env
-media/
-private/
-logs/
-staticfiles/
-__pycache__/
-*.pyc
-.pytest_cache/
-.ruff_cache/
-htmlcov/
-.coverage
-fixtures/demo/repos/
-*.sqlite3
-
-# FastAPI + React
+# Сервер (FastAPI)
 backend/.venv/
 backend/.env
 backend/storage/
@@ -21,5 +6,21 @@ backend/logs/
 backend/fixtures/demo/repos/
 backend/htmlcov/
 backend/.coverage
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+
+# Интерфейс (React)
 frontend/node_modules/
 frontend/dist/
+frontend/.env.local
+
+# Остатки Django-версии на диске (в репозиторий не попадают)
+.venv/
+.env
+media/
+private/
+logs/
+htmlcov/
+.coverage
+

@@ -1,7 +1,0 @@
-<h1 class="h3 mb-3">Личный кабинет</h1>
-<ul class="nav nav-tabs mb-4">
-  <li class="nav-item"><a class="nav-link{% if tab == 'purchases' %} active{% endif %}" href="{% url 'me:purchases' %}">Покупки</a></li>
-  <li class="nav-item"><a class="nav-link{% if tab == 'orders' %} active{% endif %}" href="{% url 'me:orders' %}">Заказы</a></li>
-  <li class="nav-item"><a class="nav-link{% if tab == 'notifications' %} active{% endif %}" href="{% url 'notifications:list' %}">Уведомления{% if unread_notifications %} <span class="badge rounded-pill text-bg-danger">{{ unread_notifications }}</span>{% endif %}</a></li>
-  <li class="nav-item"><a class="nav-link{% if tab == 'profile' %} active{% endif %}" href="{% url 'me:profile' %}">Профиль</a></li>
-</ul>
