@@ -670,3 +670,46 @@ a {
     height: 380px;
   }
 }
+
+/* Оценка звёздами в форме отзыва */
+.cm-rate {
+  display: inline-flex;
+  flex-direction: row-reverse;
+  gap: 0.2rem;
+}
+.cm-rate input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.cm-rate label {
+  font-size: 2rem;
+  color: #d5d7d0;
+  cursor: pointer;
+}
+.cm-rate input:checked ~ label,
+.cm-rate label:hover,
+.cm-rate label:hover ~ label {
+  color: var(--c-warning);
+}
+.cm-rate input:focus-visible + label {
+  outline: 2px solid var(--c-muted);
+  border-radius: 4px;
+}
+
+/* Код Pygments в модерации и шапка-кнопка меню пользователя */
+.cm-code .highlight {
+  margin: 0;
+}
+.cm-code table {
+  margin: 0;
+}
+.cm-code td.linenos {
+  color: var(--c-muted);
+  user-select: none;
+  padding-right: 0.5rem;
+}
+.cm-header .nav-link.btn {
+  border: 0;
+}
