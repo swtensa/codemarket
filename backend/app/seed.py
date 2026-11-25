@@ -59,7 +59,7 @@ class Seeder:
 
     @staticmethod
     def reset(db: Session, out=print) -> None:
-        """Очистить 20 таблиц приложения (таблицы Django-версии не трогаются) и файлы."""
+        """Очистить 20 таблиц приложения и файлы."""
         names = ", ".join(f'"{t.name}"' for t in Base.metadata.sorted_tables)
         db.execute(text(f"TRUNCATE {names} RESTART IDENTITY CASCADE"))
         db.commit()

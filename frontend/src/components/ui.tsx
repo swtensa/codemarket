@@ -5,7 +5,7 @@ import { Link, useLocation, useSearchParams } from 'react-router'
 import { ApiError } from '../api/client'
 import { similarityTone } from '../lib/format'
 
-// Цвет статуса: success / warning / danger / neutral (как в Django-версии)
+// Цвет статуса: success / warning / danger / neutral
 export const STATUS_TONE: Record<string, 'success' | 'warning' | 'danger' | 'neutral'> = {
   draft: 'neutral',
   checking: 'warning',

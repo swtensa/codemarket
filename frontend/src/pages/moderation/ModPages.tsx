@@ -1057,7 +1057,7 @@ export function UsersPage() {
   )
 }
 
-// ---------------------------------------------------------------- справочники (вместо Django admin)
+// ---------------------------------------------------------------- справочники
 
 type RefKind = 'categories' | 'technologies' | 'platforms'
 type Draft = { name: string; slug: string; parent_id: number | null; position: number; icon: string }

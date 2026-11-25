@@ -43,7 +43,7 @@ STEP_INDEX = {"new": 0, "offer": 1, "awaiting_payment": 2, "in_work": 3, "revisi
 
 
 def _target(db, user, product_slug: str, kind: str, purchase_id: int | None):
-    """Продукт, тип заказа и покупка для формы создания (как ?product=&kind= / ?purchase= в Django-версии)."""
+    """Продукт, тип заказа и покупка для формы создания (параметры адреса ?product=&kind= или ?purchase=)."""
     purchase = None
     if purchase_id:
         purchase = db.get(Purchase, purchase_id)

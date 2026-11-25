@@ -4,7 +4,6 @@ python -m app.cli process_checks | send_invites | cancel_unpaid | auto_accept | 
 python -m app.cli load_refs        # справочники (разделы, технологии, платформы)
 python -m app.cli plag_calibrate   # таблица коэффициентов S по парам fixtures/plag_pairs
 python -m app.cli create_admin email имя пароль
-python -m app.cli drop_django_tables   # удалить таблицы Django-версии (scripts/drop_django_tables.sql)
 """
 
 import sys
@@ -44,16 +43,6 @@ def main(argv: list[str]) -> int:
     name, args = argv[0], argv[1:]
     if name == "plag_calibrate":
         plag_calibrate()
-        return 0
-    if name == "drop_django_tables":
-        from sqlalchemy import text
-
-        from app.core.db import engine
-
-        sql = (BASE_DIR.parent / "scripts" / "drop_django_tables.sql").read_text(encoding="utf-8")
-        with engine.begin() as conn:
-            conn.execute(text(sql))
-        print("Таблицы Django-версии удалены")
         return 0
     if name in ("load_refs", "create_admin"):
         from app.core.db import SessionLocal

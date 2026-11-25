@@ -1,4 +1,4 @@
-"""Каталог: поиск и фильтры, просмотры, продукты продавца, статусы продукта (раздел 7.1 ТЗ)."""
+"""Каталог: поиск и фильтры, просмотры, продукты продавца, статусы продукта."""
 
 import logging
 import re
@@ -222,7 +222,7 @@ def search_catalog(db: Session, query: CatalogQuery):
 
 
 def paginate(db: Session, stmt, page: int, page_size: int):
-    """(элементы, всего, страница, страниц) — номер страницы приводится к допустимому, как в Django Paginator."""
+    """(элементы, всего, страница, страниц) — номер страницы приводится к допустимому."""
     total = db.scalar(select(func.count()).select_from(stmt.order_by(None).subquery())) or 0
     pages = max(1, -(-total // page_size))
     page = min(max(1, page or 1), pages)
@@ -311,7 +311,7 @@ _TR = {
 
 
 def _translit(text: str) -> str:
-    """Транслитерация русского названия для адреса продукта (как slugify в Django)."""
+    """Транслитерация русского названия для адреса продукта (латиница, цифры и дефисы)."""
     s = "".join(_TR.get(ch, ch) for ch in text.lower())
     s = re.sub(r"[^\w\s-]", "", s, flags=re.ASCII)
     return re.sub(r"[-\s]+", "-", s).strip("-_")
@@ -330,7 +330,7 @@ URL_RE = re.compile(r"^https?://[^\s/$.?#][^\s]*$", re.I)
 
 
 def _validate(data: dict) -> dict:
-    """Проверки полей продукта (как full_clean модели Django)."""
+    """Проверки полей продукта перед сохранением."""
     errors = {}
     title = (data.get("title") or "").strip()
     short = (data.get("short_description") or "").strip()

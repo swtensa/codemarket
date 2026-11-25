@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     log_dir: Path = BASE_DIR / "logs"
     frontend_dist: Path = BASE_DIR.parent / "frontend" / "dist"
 
-    # бизнес-параметры (раздел 6 ТЗ)
+    # бизнес-параметры площадки
     platform_commission: Decimal = Decimal("0.10")
     hold_days: int = 7
     auto_accept_days: int = 3

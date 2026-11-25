@@ -58,7 +58,7 @@ def clean_github_login(value: str | None) -> str:
 
 
 def register_user(db: Session, *, email, username, password1, password2, accept_terms) -> User:
-    """Регистрация с обязательным согласием с соглашением и политикой ПДн (раздел 10 ТЗ)."""
+    """Регистрация с обязательным согласием с соглашением и политикой ПДн."""
     errors: dict[str, str] = {}
     email = (email or "").strip().lower()
     username = (username or "").strip()
@@ -220,7 +220,7 @@ def disconnect_github_installation(db: Session, installation_id: int) -> int:
 
 
 def block_user(db: Session, user: User, *, reason: str, admin: User) -> User:
-    """Заблокировать: продукты скрываются из каталога, заказы обрабатываются по разделу 7.4 ТЗ."""
+    """Заблокировать: продукты скрываются из каталога, незавершённые заказы закрываются по правилам заказов."""
     from app.services.orders import handle_seller_blocked
 
     if not reason or not reason.strip():

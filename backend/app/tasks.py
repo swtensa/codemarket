@@ -76,7 +76,7 @@ def check_deadlines(db: Session) -> str:
     return f"просроченных заказов отмечено: {done}"
 
 
-# задача → интервал в секундах (как run_scheduler Django-версии; check_deadlines добавлена по ТЗ перехода)
+# задача → интервал запуска в секундах
 JOBS: list[tuple[str, Callable[[Session], str], int]] = [
     ("process_checks", process_checks, 60),
     ("send_invites", send_invites, 60),

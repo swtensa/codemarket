@@ -16,7 +16,7 @@ const ToastContext = createContext<Ctx>({ push: () => undefined })
 
 let seq = 0
 
-/** Тосты успеха и ошибок (вместо сообщений Django), исчезают через 5 секунд. */
+/** Тосты успеха и ошибок, исчезают через 5 секунд. */
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([])
   const remove = useCallback((id: number) => setToasts((t) => t.filter((x) => x.id !== id)), [])

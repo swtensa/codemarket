@@ -34,7 +34,7 @@ def verify_password(raw: str, hashed: str) -> bool:
 
 
 def password_errors(raw: str) -> list[str]:
-    """Правила пароля Django-версии: не короче 8 символов, есть буквы и цифры."""
+    """Правила пароля: не короче 8 символов, есть буквы и цифры."""
     errors = []
     if len(raw) < 8:
         errors.append("Пароль слишком короткий: не короче 8 символов.")

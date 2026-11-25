@@ -18,7 +18,7 @@ target_metadata = Base.metadata
 
 
 def include_name(name, type_, parent_names):
-    """Таблицы Django-версии в той же базе не трогаем."""
+    """Посторонние таблицы в той же базе не трогаем."""
     if type_ == "table":
         return name in target_metadata.tables
     return True

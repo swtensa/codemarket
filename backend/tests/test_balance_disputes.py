@@ -1,4 +1,4 @@
-"""Баланс, выплаты и споры (раздел 12 ТЗ)."""
+"""Баланс, выплаты и споры."""
 
 from datetime import timedelta
 from decimal import Decimal

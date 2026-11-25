@@ -1,4 +1,4 @@
-"""Модели SQLAlchemy: 20 таблиц (раздел 5 ТЗ и поля, добавленные в Django-версии)."""
+"""Модели SQLAlchemy: 20 таблиц приложения."""
 
 from .balance import BalanceOperation, OpKind, OpStatus
 from .base import Base

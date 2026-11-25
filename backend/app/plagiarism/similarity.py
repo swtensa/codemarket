@@ -1,4 +1,4 @@
-"""Сравнение наборов отпечатков (чистые функции без Django)."""
+"""Сравнение наборов отпечатков (чистые функции)."""
 
 from .files import collect_source_files
 from .known_libs import library_kgrams

@@ -1,4 +1,4 @@
-"""Логи в backend/logs: errors, webhooks, admin_actions, integrations (как в Django-версии)."""
+"""Логи в backend/logs: errors, webhooks, admin_actions, integrations."""
 
 import logging
 

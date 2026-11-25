@@ -16,7 +16,7 @@ import ProductPage from './pages/catalog/ProductPage'
 import LegalPage from './pages/LegalPage'
 import { buyerRoutes, sellerRoutes, staffRoutes } from './routes'
 
-/** Адреса страниц — как в Django-версии (/, /p/<slug>/, /me/…, /sell/…, /orders/<id>/, /moderation/…, /legal/…). */
+/** Адреса страниц (/, /p/<slug>/, /me/…, /sell/…, /orders/<id>/, /moderation/…, /legal/…). */
 export const router = createBrowserRouter([
   {
     element: <Layout />,
