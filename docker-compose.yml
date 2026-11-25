@@ -1,0 +1,69 @@
+# Запуск: docker compose --env-file .env.docker up --build -d
+
+# Имя проекта задано явно: из названия папки на кириллице Docker его получить не может
+name: codemarket
+
+services:
+  # База данных PostgreSQL
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: codemarket
+      POSTGRES_USER: codemarket
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Задайте DB_PASSWORD в .env.docker}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U codemarket -d codemarket"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # Миграции: создают и обновляют таблицы, затем контейнер завершается
+  migrate:
+    build: .
+    image: codemarket-app
+    env_file: .env.docker
+    command: ["alembic", "upgrade", "head"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # Сайт: FastAPI и собранный React
+  backend:
+    build: .
+    image: codemarket-app
+    env_file: .env.docker
+    ports:
+      - "8000:8000"
+    volumes:
+      - storage:/app/backend/storage
+      - demo_repos:/app/backend/fixtures/demo/repos
+      - logs:/app/backend/logs
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  # Фоновые задачи: тот же образ, другая команда
+  scheduler:
+    build: .
+    image: codemarket-app
+    env_file: .env.docker
+    command: ["python", "-m", "app.scheduler"]
+    volumes:
+      - storage:/app/backend/storage
+      - demo_repos:/app/backend/fixtures/demo/repos
+      - logs:/app/backend/logs
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+# Тома: данные сохраняются, даже если удалить контейнеры
+volumes:
+  pgdata:
+  storage:
+  demo_repos:
+  logs:

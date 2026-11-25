@@ -1,0 +1,26 @@
+# Служебное
+.git
+htmlcov
+logs
+media
+private
+docs
+
+# Сервер: окружение, пароли, данные, кэш
+backend/.venv
+backend/.env
+backend/storage
+backend/logs
+backend/htmlcov
+backend/.coverage
+backend/fixtures/demo/repos
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+
+# Интерфейс: зависимости и старая сборка (собирается заново внутри Docker)
+frontend/node_modules
+frontend/dist
+
+# Настройки Docker с паролями
+.env.docker

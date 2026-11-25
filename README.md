@@ -36,6 +36,27 @@ npm install
 Демо-логины (пароль `demo12345`): администратор `admin@demo.ru`, продавец `webstudio@demo.ru`,
 покупатель `buyer1@demo.ru`.
 
+## Запуск через Docker
+
+Нужен только Docker Desktop: Python, Node.js и PostgreSQL ставить не надо.
+
+```powershell
+copy .env.docker.example .env.docker   # задайте свои DB_PASSWORD и SECRET_KEY
+docker compose --env-file .env.docker up --build -d
+docker compose --env-file .env.docker exec backend python -m app.seed --reset   # демо-данные
+```
+
+Сайт: http://127.0.0.1:8000/ . Остановка: `docker compose --env-file .env.docker down`
+(данные базы и загруженные файлы сохраняются в томах Docker).
+
+## Разработка интерфейса
+
+```powershell
+cd frontend; npm run dev   # http://localhost:5173, запросы /api и /media идут на FastAPI
+```
+
+Проверки: `npm run lint`, `npm run typecheck`. Типы API: `npm run gen:api` (сервер должен быть запущен).
+
 ## Тесты
 
 ```powershell
