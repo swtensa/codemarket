@@ -4,7 +4,6 @@ htmlcov
 logs
 media
 private
-docs
 
 # Сервер: окружение, пароли, данные, кэш
 backend/.venv
